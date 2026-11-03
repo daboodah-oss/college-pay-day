@@ -4,7 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" href="data:," />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#0b1e3a" />
+    <link rel="icon" type="image/png" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Pay Day" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>College Pay Day</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -679,6 +686,10 @@
     <footer>
       <div class="footer-inner">
         <p><strong>Prototype model</strong> — values, pot ceiling ($200 default), and instant-vs-weekly payout are draft decisions. Quest list is modeled from Matthew's real deadlines: IU Indianapolis Nov 15, 2026 · CICF Feb 1, 2027 · IU general Feb 15, 2027 · HSEF Mar 4, 2027, 11:59 PM · FAFSA Apr 15, 2027 (Indiana priority).</p>
+        <div class="reset-zone" id="installZone" hidden>
+          <p>Put College Pay Day on this device's home screen — opens full-screen, no browser bar.</p>
+          <button class="reset-btn" type="button" id="installBtn" hidden>Install app</button>
+        </div>
         <div class="reset-zone">
           <p>Your “Playing as” pick is saved only on <strong>this phone</strong>. Clearing it doesn't touch the shared board — no quests, no money — it just brings the “Who's playing?” pick back so this phone can choose again.</p>
           <button class="reset-btn" type="button" id="clearPlayerBtn">Clear my player choice — this device only</button>
@@ -2052,6 +2063,69 @@
 
       renderAll();
       initialSync();
+    </script>
+    <script>
+      /* ============ PWA: service worker + install prompt ============ */
+      (function(){
+        /* Register the service worker (relative path — it lives next to this
+           page on GitHub Pages). On hosts without sw.js beside the page the
+           registration simply fails; swallow it so nothing ever errors. */
+        if("serviceWorker" in navigator){
+          window.addEventListener("load", function(){
+            try{
+              var reg = navigator.serviceWorker.register("sw.js");
+              if(reg && reg.catch) reg.catch(function(){});
+            }catch(e){}
+          });
+        }
+        /* "Install app" button: stays hidden unless the browser fires
+           beforeinstallprompt, and never shows when already installed /
+           running standalone. iOS Safari never fires the event, so the
+           button stays hidden there (Share → Add to Home Screen instead). */
+        var deferredPrompt = null;
+        var installZone = document.getElementById("installZone");
+        var installBtn = document.getElementById("installBtn");
+        function isStandalone(){
+          try{
+            return window.matchMedia("(display-mode: standalone)").matches ||
+                   window.matchMedia("(display-mode: fullscreen)").matches ||
+                   window.navigator.standalone === true;
+          }catch(e){ return false; }
+        }
+        function showInstall(){
+          if(isStandalone()) return;
+          if(installZone) installZone.hidden = false;
+          if(installBtn) installBtn.hidden = false;
+        }
+        function hideInstall(){
+          if(installZone) installZone.hidden = true;
+          if(installBtn) installBtn.hidden = true;
+        }
+        window.addEventListener("beforeinstallprompt", function(e){
+          e.preventDefault();
+          deferredPrompt = e;
+          showInstall();
+        });
+        window.addEventListener("appinstalled", function(){
+          deferredPrompt = null;
+          hideInstall();
+        });
+        if(installBtn){
+          installBtn.addEventListener("click", function(){
+            if(!deferredPrompt){ hideInstall(); return; }
+            var promptEvent = deferredPrompt;
+            deferredPrompt = null;
+            try{
+              promptEvent.prompt();
+              if(promptEvent.userChoice && promptEvent.userChoice.then){
+                promptEvent.userChoice.then(hideInstall, hideInstall);
+              }else{
+                hideInstall();
+              }
+            }catch(e){ hideInstall(); }
+          });
+        }
+      })();
     </script>
   </body>
 </html>
