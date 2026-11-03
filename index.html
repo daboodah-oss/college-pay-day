@@ -1191,11 +1191,23 @@
       function closePlayerModal(){ if(playerModal) playerModal.classList.remove("show"); }
       function choosePlayer(name){
         if(PLAYERS.indexOf(name) < 0) return;
+        var changed = player !== name;
         player = name;
         saveSyncMeta();
         syncPlayerBtns();
         closePlayerModal();
         if(typeof renderHud === "function") renderHud();
+        /* Land at the top on an actual player change, so switching while
+           scrolled down doesn't strand the new player at the bottom of
+           their list. Instant (not smooth) so the jump lands after the
+           re-render above, not mid-layout-shift. Only player changes do
+           this — claims, undos, tab switches, and sync refreshes never
+           touch the scroll position. (Boss Week taps call this first and
+           then scroll to the boss card themselves, which still wins.) */
+        if(changed){
+          try{ window.scrollTo({ top:0, left:0, behavior:"instant" }); }
+          catch(e){ window.scrollTo(0, 0); }
+        }
       }
       /* "Clear my player choice" (footer) — this device only. Drops the stored
          player from the per-device sync meta while keeping lastSyncedVersion
