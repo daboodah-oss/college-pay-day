@@ -525,6 +525,23 @@
       .hud-claim-btn.undo:hover{filter:none;border-color:var(--green)}
       .hud-claim-btn:disabled{background:#16233a;border-color:#16233a;color:#5d718c;cursor:not-allowed;filter:none}
       .hud-claim-btn.gold{background:linear-gradient(180deg,var(--green-light),var(--green));color:var(--green-ink)}
+      /* ---------- per-quest notes ---------- */
+      .note-section{margin-top:10px;border-top:1px dashed var(--line-soft);padding-top:9px}
+      .note-label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+      .note-block{background:#221d07;border:1px solid #6b5207;border-radius:8px;padding:9px 11px;font-size:13.5px;line-height:1.5;color:#f5e6a8;word-break:break-word}
+      .note-block a{color:var(--cyan);font-weight:700;word-break:break-all}
+      .note-edit-btn{margin-left:8px;background:transparent;border:1px solid #6b5207;color:var(--gold);border-radius:5px;padding:3px 9px;font-size:12px;font-weight:800}
+      .note-edit-btn:hover{border-color:var(--gold)}
+      .note-add-btn{background:transparent;border:1px dashed #33507a;color:var(--cyan);border-radius:6px;padding:7px 11px;font-size:13px;font-weight:800}
+      .note-add-btn:hover{border-color:var(--cyan);color:#d6f2ff}
+      .note-textarea{width:100%;min-height:72px;background:#060d18;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:9px 10px;font:inherit;font-size:14px;line-height:1.45;resize:vertical}
+      .note-textarea:focus{outline:2px solid var(--cyan);outline-offset:1px}
+      .note-actions{display:flex;gap:8px;margin-top:8px}
+      .note-save-btn{background:linear-gradient(180deg,var(--green-light),var(--green));border:1px solid var(--green-dark);color:var(--green-ink);border-radius:6px;padding:8px 16px;font-weight:900;font-size:13.5px}
+      .note-cancel-btn{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:8px 14px;font-weight:700;font-size:13.5px}
+      .mission-note-preview{font-size:12.5px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+      .dc-note-glyph{margin-left:6px;font-size:12px}
+      .qdetails .note-section{border-top-color:var(--line-soft)}
       .hud-undo-one{width:100%;margin-top:8px;background:transparent;border:1px solid #6e2430;color:#ffb3ba;border-radius:10px;padding:10px;font-weight:900;cursor:pointer;font-size:13.5px}
       @media (max-width:480px){
         .hud-sound{width:32px;height:32px;font-size:15px}
@@ -901,20 +918,24 @@
           linksHtml = '<div class="detail-nolink">'+q.noLinkNote+'</div>';
         }
         return '<details class="qdetails'+(compact ? " compact" : "")+'"><summary>Details <span class="chev" aria-hidden="true">▸</span></summary>'
-          + '<div class="qdetails-body">'+(q.more ? '<p>'+q.more+'</p>' : '')+doneHtml+linksHtml+'</div></details>';
+          + '<div class="qdetails-body">'+(q.more ? '<p>'+q.more+'</p>' : '')+doneHtml+linksHtml+noteSectionHTML(q.id)+'</div></details>';
       }
 
       /* ================= STATE (saved on this device / browser) ================= */
       var STORAGE_KEY = "college-pay-day-state-v1";
-      var state = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false };
+      var state = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, notes:{} };
       var byId = {};
       QUESTS.forEach(function(q){ byId[q.id]=q; });
       function cleanCount(v){ var n = Number(v); return (isFinite(n) && n > 0) ? Math.floor(n) : 0; }
       function statePayload(){
         var bankPaid = {};
         QUESTS.forEach(function(q){ if(q._bankPaid) bankPaid[q.id] = q._bankPaid; });
+        var notes = {};
+        if(state.notes && typeof state.notes === "object"){
+          Object.keys(state.notes).forEach(function(id){ if(typeof state.notes[id] === "string" && state.notes[id]) notes[id] = state.notes[id]; });
+        }
         return { done:state.done, extraApps:state.extraApps, jackpot:state.jackpot,
-          bank:state.bank, bankSpentTotal:state.bankSpentTotal, muted:state.muted, bankPaid:bankPaid };
+          bank:state.bank, bankSpentTotal:state.bankSpentTotal, muted:state.muted, bankPaid:bankPaid, notes:notes };
       }
       function saveState(){
         try{
@@ -924,7 +945,7 @@
       }
       function cleanStateData(data){
         /* Validate an incoming state object (local cache or server) into a clean one — corrupted fields fall back to $0 defaults. */
-        var next = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, bankPaid:{} };
+        var next = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, bankPaid:{}, notes:{} };
         if(!data || typeof data !== "object") return next;
         if(data.done && typeof data.done === "object"){
           Object.keys(data.done).forEach(function(id){ if(byId[id] && data.done[id]) next.done[id] = true; });
@@ -937,11 +958,18 @@
         if(data.bankPaid && typeof data.bankPaid === "object"){
           Object.keys(data.bankPaid).forEach(function(id){ var v = cleanCount(data.bankPaid[id]); if(byId[id] && v) next.bankPaid[id] = v; });
         }
+        if(data.notes && typeof data.notes === "object"){
+          Object.keys(data.notes).forEach(function(id){
+            var v = data.notes[id];
+            if((byId[id] || id === "jackpot") && typeof v === "string" && v) next.notes[id] = v;
+          });
+        }
         return next;
       }
       function applyStateData(next){
         state.done = next.done; state.extraApps = next.extraApps; state.jackpot = next.jackpot;
         state.bank = next.bank; state.bankSpentTotal = next.bankSpentTotal; state.muted = next.muted;
+        state.notes = next.notes || {};
         QUESTS.forEach(function(q){ q._bankPaid = next.bankPaid[q.id] || 0; });
       }
       function loadState(){
@@ -1276,6 +1304,61 @@
       };
       function play(name){ if(state.muted) return; if(SOUNDS[name]) SOUNDS[name](); }
 
+      /* ================= PER-QUEST NOTES (shared, synced like claims) ================= */
+      var noteEditing = {};
+      function escapeHTML(s){
+        return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+      }
+      function linkifyNote(text){
+        var re = /https?:\/\/[^\s<>"']+/g;
+        var out = "", last = 0, m;
+        while((m = re.exec(text)) !== null){
+          out += escapeHTML(text.slice(last, m.index));
+          var url = m[0], trail = "";
+          while(url.length && /[.,;:!?\)\]\}]/.test(url.slice(-1))){ trail = url.slice(-1) + trail; url = url.slice(0,-1); }
+          var eu = escapeHTML(url);
+          out += '<a href="'+eu+'" target="_blank" rel="noopener noreferrer">'+eu+'</a>' + escapeHTML(trail);
+          last = m.index + m[0].length;
+        }
+        out += escapeHTML(text.slice(last));
+        return out.replace(/\n/g,"<br>");
+      }
+      function noteText(id){ return (state.notes && typeof state.notes[id] === "string") ? state.notes[id] : ""; }
+      function notePreviewText(id){
+        var t = noteText(id).replace(/\s+/g," ").trim();
+        if(!t) return "";
+        var words = t.split(" ");
+        var p = words.slice(0,6).join(" ");
+        if(words.length > 6 || p.length < t.length) p += "…";
+        return p;
+      }
+      function noteSectionHTML(id){
+        var txt = noteText(id);
+        if(noteEditing[id]){
+          return '<div class="note-section" data-note-section="'+id+'"><div class="note-label">📝 Note</div>'
+            + '<textarea class="note-textarea" data-note-input="'+id+'" placeholder="Add a note — a link, a confirmation number, anything…" rows="3">'+escapeHTML(txt)+'</textarea>'
+            + '<div class="note-actions"><button type="button" class="note-save-btn" data-note-save="'+id+'">Save</button><button type="button" class="note-cancel-btn" data-note-cancel="'+id+'">Cancel</button></div></div>';
+        }
+        if(txt){
+          return '<div class="note-section" data-note-section="'+id+'"><div class="note-label">📝 Note</div>'
+            + '<div class="note-block"><span class="note-text">'+linkifyNote(txt)+'</span><button type="button" class="note-edit-btn" data-note-edit="'+id+'">Edit</button></div></div>';
+        }
+        return '<div class="note-section" data-note-section="'+id+'"><div class="note-label">📝 Note</div>'
+          + '<button type="button" class="note-add-btn" data-note-add="'+id+'">＋ Add note</button></div>';
+      }
+      function replaceNoteSection(sectionEl, id){
+        if(!sectionEl) return null;
+        var tmp = document.createElement("div");
+        tmp.innerHTML = noteSectionHTML(id);
+        var fresh = tmp.firstChild;
+        sectionEl.replaceWith(fresh);
+        return fresh;
+      }
+      function refreshNoteSections(id){
+        document.querySelectorAll('[data-note-section="'+id+'"]').forEach(function(sec){ replaceNoteSection(sec, id); });
+        document.querySelectorAll('[data-dc-note-glyph="'+id+'"]').forEach(function(g){ g.hidden = !noteText(id); });
+      }
+
       /* ================= RENDER — QUEST BOARD ================= */
       function playerBadge(p){
         if(p==="matthew") return '<span class="badge player-m">Matthew</span>';
@@ -1343,7 +1426,7 @@
         var moreHtml = q.more ? '<p>'+q.more+'</p>' : (q.desc ? '<p>'+q.desc+'</p>' : "");
         var repeatHtml = q.repeatable ? '<div class="dc-repeat-note" data-dc-repeat="'+q.id+'"></div>' : "";
         return '<details class="qdetails dc-details"><summary>Details <span class="chev" aria-hidden="true">▸</span></summary>'
-          + '<div class="qdetails-body roster-details-body">'+doneHtml+moreHtml+linksHtml+repeatHtml+'</div></details>';
+          + '<div class="qdetails-body roster-details-body">'+doneHtml+moreHtml+linksHtml+repeatHtml+noteSectionHTML(q.id)+'</div></details>';
       }
       function depthHTML(q){
         var extra = "";
@@ -1357,7 +1440,7 @@
         return '<div class="dc-row'+(q.kind==="boss"?" boss":"")+'" id="depth-'+q.id+'">'
           + '<div class="dc-check" aria-hidden="true">✓</div>'
           + '<div class="dc-pos '+q.kind+'">'+kindTag(q)+'</div>'
-          + '<div class="dc-main"><div class="dc-title">'+q.title+'</div>'
+          + '<div class="dc-main"><div class="dc-title">'+q.title+'<span class="dc-note-glyph" data-dc-note-glyph="'+q.id+'" aria-label="Has note"'+(noteText(q.id) ? "" : " hidden")+'>📝</span></div>'
           + '<div class="dc-meta"><span class="dc-mplayer">'+playerName(q.player)+' · </span>'+(q.deadline ? '<span class="dc-mdue">⏰ '+dueShort(q)+' · </span>' : '')+extra+'</div>'
           + gate + '</div>'
           + '<div class="dc-player">'+playerName(q.player)+'</div>'
@@ -1596,6 +1679,11 @@
           if(rrow) rrow.classList.toggle("done", q.repeatable ? state.extraApps>0 : done);
         });
         renderHud();
+        /* Keep Roster note glyphs + note sections in step with the current
+           (local or server-adopted) notes, without a full Roster re-render. */
+        document.querySelectorAll("[data-dc-note-glyph]").forEach(function(g){ g.hidden = !noteText(g.getAttribute("data-dc-note-glyph")); });
+        var depthEl = document.getElementById("depthList");
+        if(depthEl){ depthEl.querySelectorAll("[data-note-section]").forEach(function(sec){ replaceNoteSection(sec, sec.getAttribute("data-note-section")); }); }
         saveState();
       }
 
@@ -1694,8 +1782,7 @@
       }
       document.addEventListener("click", function(e){
         var u = e.target.closest ? e.target.closest("[data-undo-one]") : null;
-        if(u){ undoOne(u.getAttribute("data-undo-one")); return; }
-        var c = e.target.closest ? e.target.closest("[data-claim]") : null;
+        if(u){ undoOne(u.getAttribute("data-undo-one")); return; }        var c = e.target.closest ? e.target.closest("[data-claim]") : null;
         if(c){ claim(c.getAttribute("data-claim")); return; }
         var j = e.target.closest ? e.target.closest("[data-jackpot]") : null;
         if(j){
@@ -1705,6 +1792,45 @@
           confetti();
           toast("🏆 Scholarship win — <span class='amt'>+$25</span> jackpot drop to Matthew · cash or Xbox");
           update(); pushState("jackpot", ""); return;
+        }
+      });
+      /* ---- notes: add / edit / save / cancel (shared via the same sync write path as claims) ---- */
+      document.addEventListener("click", function(e){
+        if(!e.target.closest) return;
+        var addBtn = e.target.closest("[data-note-add]");
+        var editBtn = e.target.closest("[data-note-edit]");
+        var startBtn = addBtn || editBtn;
+        if(startBtn){
+          var sid = startBtn.getAttribute(addBtn ? "data-note-add" : "data-note-edit");
+          noteEditing[sid] = true;
+          var sec0 = startBtn.closest("[data-note-section]");
+          var fresh0 = replaceNoteSection(sec0, sid);
+          if(fresh0){ var ta0 = fresh0.querySelector("[data-note-input]"); if(ta0){ ta0.focus(); } }
+          return;
+        }
+        var cancelBtn = e.target.closest("[data-note-cancel]");
+        if(cancelBtn){
+          var cid = cancelBtn.getAttribute("data-note-cancel");
+          noteEditing[cid] = false;
+          replaceNoteSection(cancelBtn.closest("[data-note-section]"), cid);
+          return;
+        }
+        var saveBtn = e.target.closest("[data-note-save]");
+        if(saveBtn){
+          var vid = saveBtn.getAttribute("data-note-save");
+          if(!player){ openPlayerModal(); return; }
+          var sec = saveBtn.closest("[data-note-section]");
+          var ta = sec ? sec.querySelector("[data-note-input]") : null;
+          var val = ta ? ta.value.trim() : "";
+          noteEditing[vid] = false;
+          var had = !!noteText(vid);
+          if(val){ state.notes[vid] = val; } else { delete state.notes[vid]; }
+          if(!state.notes) state.notes = {};
+          update();
+          refreshNoteSections(vid);
+          pushState("note", vid);
+          toast(val ? "Note saved" : (had ? "Note cleared" : "Note saved"));
+          return;
         }
       });
       function syncMuteBtn(){
@@ -1742,7 +1868,7 @@
         if(confirmBtn) confirmBtn.addEventListener("click", function(){
           try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
           state.done = {}; state.extraApps = 0; state.jackpot = 0;
-          state.bank = 0; state.bankSpentTotal = 0;
+          state.bank = 0; state.bankSpentTotal = 0; state.notes = {};
           QUESTS.forEach(function(q){ q._bankPaid = 0; });
           confirmBox.hidden = true;
           resetBtn.hidden = false;
@@ -1819,6 +1945,7 @@
         if(q.more) html += '<p>'+q.more+'</p>';
         else if(q.desc) html += '<p>'+q.desc+'</p>';
         html += hudLinksHTML(q);
+        html += noteSectionHTML(q.id);
         return html;
       }
       function hudMissionHTML(q){
@@ -1852,6 +1979,7 @@
           + '<div class="medallion'+(isBoss?" bossMedal":"")+(locked?" lockedMedal":"")+(hudPopId===q.id?" pop":"")+'" aria-hidden="true">'+medal+'</div>'
           + '<div class="mission-main"><div class="mission-title">'+q.title+'</div>'
           + '<div class="mission-sub"><span class="rewardBig">'+hudRewardText(q, done)+'</span>'+tags+'</div>'
+          + (noteText(q.id) ? '<div class="mission-note-preview">📝 '+escapeHTML(notePreviewText(q.id))+'</div>' : '')
           + '<button type="button" class="hud-details-btn" data-hud-details="'+q.id+'" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'+hudDetailsBody(q)+'</div>'
           + actions
@@ -1865,6 +1993,7 @@
           + '<div class="mission-sub"><span class="rewardBig">+$25</span><span class="kickoff">Any scholarship win</span>'
           + (state.jackpot>0 ? '<span class="kickoff">Claimed ×'+state.jackpot+'</span>' : '')
           + '</div>'
+          + (noteText("jackpot") ? '<div class="mission-note-preview">📝 '+escapeHTML(notePreviewText("jackpot"))+'</div>' : '')
           + '<button type="button" class="hud-claim-btn gold" data-jackpot="1">Claim +$25</button>'
           + '<button type="button" class="hud-details-btn" data-hud-details="jackpot" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'
@@ -1872,6 +2001,7 @@
           + '<p>Any scholarship Matthew actually <strong>wins</strong> pays a <strong>+$25 bonus drop</strong> — on top of the scholarship itself. When an aid offer arrives, INvestEd\'s free Award Advisor standardizes it so offers can be compared side by side.</p>'
           + '<div class="detail-links"><a class="detail-link" href="https://investedindiana.org/AwardAdvisor" target="_blank" rel="noopener noreferrer">INvestEdIndiana.org/AwardAdvisor ↗</a></div>'
           + '<p style="margin-top:8px">Free INvestEd help line: <a href="tel:+13177159007">317-715-9007</a> · <a href="mailto:Outreach@INvestEdIndiana.org">Outreach@INvestEdIndiana.org</a></p>'
+          + noteSectionHTML("jackpot")
           + '</div></div></article>';
       }
       /* NEXT UP follows the board's layers, not raw deadline order.
