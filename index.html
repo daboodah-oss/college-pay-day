@@ -249,8 +249,6 @@
       .sound-row .what{color:var(--muted);font-size:14px;flex:1 1 200px}
       .test-btn{background:#060d18;border:1px solid var(--line);color:var(--ink);border-radius:5px;padding:8px 11px;font-weight:700;font-size:13.5px}
       .test-btn:hover{border-color:var(--cyan);color:#c9ecff}
-      #jackpotBtn{background:linear-gradient(180deg,var(--green-light),var(--green));border-color:var(--green-dark);color:var(--green-ink)}
-      #jackpotBtn:hover{filter:brightness(1.1);color:var(--green-ink)}
       footer{border-top:1px solid var(--line);margin-top:34px}
       .footer-inner{max-width:1060px;margin:0 auto;padding:18px 16px 30px;color:var(--muted);font-size:14px}
       .footer-inner strong{color:var(--ink)}
@@ -268,13 +266,13 @@
       .dc-group-prog strong{color:var(--cyan)}
       .dc-colhead{display:grid;grid-template-columns:26px 58px minmax(0,1fr) 84px 64px 148px 118px;gap:10px;align-items:center;padding:7px 12px;margin-top:12px;background:#0e2a44;border:1px solid var(--line);border-radius:6px;position:sticky;top:var(--hdrh,160px);z-index:20;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#9fd8ff}
       .dc-colhead .r{text-align:right}
-      .dc-row{display:grid;grid-template-columns:26px 58px minmax(0,1fr) 84px 64px 148px 118px;gap:10px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line-soft)}
+      .dc-row{display:grid;grid-template-columns:26px 58px minmax(0,1fr) 84px 64px 148px 118px;gap:10px;align-items:center;padding:7px 12px 7px 24px;border-bottom:1px solid var(--line-soft)}
       .dc-row:last-child{border-bottom:none}
       .dc-row:nth-child(even){background:rgba(255,255,255,.018)}
       .dc-row.done{background:#0a1a2e}
       .dc-row.boss{background:rgba(255,199,44,.045)}
       .dc-row.boss.done{background:#1b1a10}
-      .dc-check{width:20px;height:20px;border-radius:4px;border:2px solid #33507a;background:#060d18;display:grid;place-items:center;color:transparent;font-size:12px;font-weight:900;line-height:1}
+      .dc-check{width:22px;height:22px;border-radius:50%;border:2px solid #33507a;background:#060d18;display:grid;place-items:center;color:transparent;font-size:12px;font-weight:900;line-height:1}
       .dc-row.done .dc-check{background:var(--green);border-color:var(--green-light);color:var(--green-ink)}
       .dc-row.boss.done .dc-check{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
       .dc-pos{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.1em;text-align:center;color:#02131f;background:#5b7ba6;border-radius:3px;padding:3px 0;transform:skewX(-8deg)}
@@ -315,8 +313,8 @@
       .rep-row:last-child{border-bottom:none}
       .rep-row:nth-child(even){background:rgba(255,255,255,.018)}
       .rep-row.boss{background:rgba(255,199,44,.04)}
-      .rep-mark{width:15px;height:15px;border-radius:3px;border:2px solid #33507a;background:#060d18;display:grid;place-items:center;color:transparent;font-size:10px;font-weight:900;line-height:1}
-      .rep-row.done .rep-mark{background:var(--cyan);border-color:var(--cyan);color:#02131f}
+      .rep-mark{width:15px;height:15px;border-radius:50%;border:2px solid #33507a;background:#060d18;display:grid;place-items:center;color:transparent;font-size:10px;font-weight:900;line-height:1}
+      .rep-row.done .rep-mark{background:var(--green);border-color:var(--green-light);color:var(--green-ink)}
       .rep-row.boss.done .rep-mark{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
       .rep-main{min-width:0}
       .rep-title{font-weight:600;line-height:1.25}
@@ -328,7 +326,7 @@
       @media print{
         body{background:#fff;color:#000}
         .gamebar,.view-tabs,footer,.toast,.boss-banner,.sound-panel,.dc-note,.player-modal{display:none !important}
-        #view-play,#view-season,#view-roster{display:none !important}
+        #view-play,#view-roster{display:none !important}
         #view-report{display:block !important}
         main{max-width:none;padding:0}
         .sec-head{border-color:#999}
@@ -382,7 +380,9 @@
         .quest .qactions .undo-one-btn{padding:11px 12px}
         .stat-chip{min-width:0;flex:1}
         .header-stats{margin-left:0;width:100%}
-        .dc-row{grid-template-columns:24px minmax(0,1fr) 52px 104px;gap:8px;padding:8px 10px}
+        .dc-row{grid-template-columns:24px minmax(0,1fr) 52px 104px;gap:8px;padding:8px 10px 8px 16px}
+        .dc-details{margin-left:24px}
+        .claim-btn.small{font-size:11px;padding:7px 2px}
         .dc-colhead{grid-template-columns:24px minmax(0,1fr) 52px 104px;gap:8px;padding:7px 10px;margin-top:10px}
         .dc-pos,.dc-player,.dc-due,.dc-h-pos,.dc-h-owner,.dc-h-due{display:none}
         .dc-mplayer{display:inline;color:var(--muted);font-weight:700}
@@ -458,7 +458,7 @@
       .bank-helper{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1.5}
       .bank-info-panel .bank-explainer{margin-top:6px}
       /* Roster details — full-width expansion inside the depth row */
-      .dc-details{grid-column:1 / -1;margin-top:2px;border-top:1px dashed var(--line-soft);padding-top:6px}
+      .dc-details{grid-column:1 / -1;margin-top:2px;margin-left:38px;border-top:1px dashed var(--line-soft);padding-top:6px}
       .dc-details summary{font-size:12.5px}
       .roster-details-body .hud-done-when{margin-bottom:9px}
       .dc-repeat-note{margin-top:8px;font-size:13px;font-weight:700;color:var(--muted);line-height:1.45}
@@ -504,12 +504,12 @@
       .mission.boss{border-color:#6b5207;background:linear-gradient(180deg,#171106,var(--panel))}
       .mission.boss.done{background:#1b1a10}
       .mission.locked{opacity:.85}
-      .medallion{width:56px;height:56px;flex:0 0 auto;border-radius:50%;border:3px solid #33507a;background:#060d18;display:grid;place-items:center;font-size:22px;cursor:pointer;color:#fff;padding:0}
+      .medallion{width:56px;height:56px;flex:0 0 auto;border-radius:50%;border:3px solid #33507a;background:#060d18;display:grid;place-items:center;font-size:22px;cursor:default;color:#fff;padding:0}
       .medallion:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
       .mission.done .medallion{background:var(--green);border-color:#73e69a;color:#041f0c}
       .medallion.bossMedal{background:#241b00;border-color:var(--gold)}
       .mission.done .medallion.bossMedal{background:var(--gold);color:var(--gold-ink)}
-      .medallion.lockedMedal{background:#141210;border-color:#57534e;cursor:not-allowed}
+      .medallion.lockedMedal{background:#141210;border-color:#57534e;cursor:default}
       @keyframes medpop{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
       .medallion.pop{animation:medpop .35s ease}
       .mission-main{flex:1;min-width:0}
@@ -521,12 +521,15 @@
       .mission.flash{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,199,44,.35),0 0 26px rgba(255,199,44,.4);animation:missionFlash .9s ease-in-out 2}
       .hud-claim-btn{width:100%;margin-top:9px;background:linear-gradient(180deg,var(--green-light),var(--green));border:1px solid var(--green-dark);color:var(--green-ink);border-radius:10px;padding:11px;font-weight:900;cursor:pointer;font-size:14px}
       .hud-claim-btn:hover{filter:brightness(1.1)}
+      .hud-claim-btn.undo{background:#0a1f14;border:1px solid var(--green-dark);color:var(--green-light)}
+      .hud-claim-btn.undo:hover{filter:none;border-color:var(--green)}
+      .hud-claim-btn:disabled{background:#16233a;border-color:#16233a;color:#5d718c;cursor:not-allowed;filter:none}
       .hud-claim-btn.gold{background:linear-gradient(180deg,var(--green-light),var(--green));color:var(--green-ink)}
       .hud-undo-one{width:100%;margin-top:8px;background:transparent;border:1px solid #6e2430;color:#ffb3ba;border-radius:10px;padding:10px;font-weight:900;cursor:pointer;font-size:13.5px}
       @media (max-width:480px){
         .hud-sound{width:32px;height:32px;font-size:15px}
         .hud-inner{padding:8px 12px 6px}
-        /* four tabs share the row evenly — no sideways scroll at phone width */
+        /* three tabs share the row evenly — no sideways scroll at phone width */
         .view-tabs{gap:6px;overflow-x:visible}
         .tab-btn{flex:1 1 0;padding:12px 4px;font-size:14px;text-align:center}
       }
@@ -564,8 +567,7 @@
       <!-- FRANCHISE TABS -->
       <div class="view-tabs" role="group" aria-label="Choose view">
         <button class="tab-btn active" type="button" data-view-btn="play" aria-pressed="true"><span>Play</span></button>
-        <button class="tab-btn" type="button" data-view-btn="season" aria-pressed="false"><span>Season</span></button>
-        <button class="tab-btn" type="button" data-view-btn="roster" aria-pressed="false"><span>Roster</span></button>
+                <button class="tab-btn" type="button" data-view-btn="roster" aria-pressed="false"><span>Roster</span></button>
         <button class="tab-btn" type="button" data-view-btn="report" aria-pressed="false"><span>Report</span></button>
       </div>
 
@@ -588,7 +590,7 @@
         <label id="nextupLabel">Your Next Mission</label>
         <h3 id="nextupTitle">—</h3>
         <p id="nextupDesc"></p>
-        <div class="nextup-row"><span class="reward" id="nextupReward">—</span><span class="kickoff" id="nextupTag"></span><button type="button" id="nextupBtn">Claim it</button></div>
+        <div class="nextup-row"><span class="reward" id="nextupReward">—</span><span class="kickoff" id="nextupTag"></span><button type="button" id="nextupBtn">Claim</button></div>
         <div class="nextup-details-wrap">
           <button type="button" class="hud-details-btn" id="nextupDetailsBtn" aria-expanded="false">Details ▾</button>
           <div class="hud-details" id="nextupDetails"></div>
@@ -614,50 +616,13 @@
       </div>
       </div><!-- /view-play -->
 
-      <div id="view-season" hidden>
-      <!-- SEASON -->
-      <section id="season">
-        <div class="sec-head">
-          <span class="num red">BOSS</span>
-          <h2>The Season — Boss Battles</h2>
-          <span class="sec-progress" data-sec-progress="season"></span>
-          <p>Game days are real deadlines. Side quests pay $10; bosses pay the big money. Any boss submitted <strong style="color:var(--ink)">7+ days before its deadline</strong> earns a +$5 early-bird bonus note on the card.</p>
-        </div>
-        <div class="quests" id="quests-season"></div>
-        <div class="grid2">
-          <div class="note jackpot">
-            <h3>🏆 Jackpot Bonus Drop</h3>
-            <p>Any scholarship Matthew actually <strong>wins</strong> pays a <strong>+$25 bonus drop</strong> — on top of the scholarship itself. Effort gets paid all season; a win is pure gravy.</p>
-            <details class="qdetails" style="border-top-color:#6b5207">
-              <summary>Details <span class="chev" aria-hidden="true">▸</span></summary>
-              <div class="qdetails-body">
-                <p>When an aid offer arrives, INvestEd's free Award Advisor standardizes it so offers can be compared side by side.</p>
-                <div class="done-when"><span class="done-when-label">✓ DONE WHEN:</span> a scholarship award letter or email stating the amount has actually been received. An application submission, or an admission letter with no award, does not count.</div>
-                <div class="detail-links">
-                  <a class="detail-link" href="https://investedindiana.org/AwardAdvisor" target="_blank" rel="noopener noreferrer">INvestEdIndiana.org/AwardAdvisor ↗</a>
-                </div>
-                <p style="margin-top:9px">Free INvestEd help line: <a href="tel:+13177159007">317-715-9007</a> · <a href="mailto:Outreach@INvestEdIndiana.org">Outreach@INvestEdIndiana.org</a></p>
-              </div>
-            </details>
-            <button class="test-btn" type="button" id="jackpotBtn" data-jackpot="1" style="margin-top:11px">🏆 Scholarship won? Claim the +$25 drop</button>
-          </div>
-          <div class="note">
-            <h3>How claiming works</h3>
-            <p>On the Play screen, tap a quest's big medallion to claim it: the player's sound plays and the money lands in the earned counter up top. Tap the medallion again to undo — everything reverses exactly. Parents' support claims don't pay them; each one banks +$5 into the Party Bonus Bank, and the bank pays out automatically on top of Matthew's next boss clear.</p>
-            <p style="margin-top:8px"><strong>Review rule:</strong> If a Matthew quest requires review, either Mom or Dad can review it; once either parent has reviewed it, it counts as Done.</p>
-            <p style="margin-top:8px">Repeatable scholarship applications are undone one at a time with <strong>Undo one −$10</strong> — each tap removes one claimed application and its $10.</p>
-            <p style="margin-top:8px"><strong>Progress saves to the shared board.</strong> Everyone who opens this page — Matthew, Mom, and Dad — sees the same current status, and a claim made on one phone shows up on the others within a few seconds. Tap the name at the very top of the board to switch who's playing, so the board knows whose claim it is.</p>
-          </div>
-        </div>
-      </section>
-      </div><!-- /view-season -->
 
       <!-- ROSTER / DEPTH CHART -->
       <section id="view-roster" hidden>
         <div class="sec-head">
           <span class="num">ALL</span>
-          <h2>Depth Chart — Every Quest</h2>
-          <p>The full roster on one screen, in small print. Same quests, same Claim buttons — clearing one here updates the board, the pot, and Matthew's OVR.</p>
+          <h2>Roster — Every Quest</h2>
+          <p>The one full working list: every quest for every player, grouped the way the season runs, with the same Claim buttons as Play. Clearing one here updates the board, the pot, and Matthew's OVR.</p>
         </div>
         <div class="dc-colhead" aria-hidden="true"><span></span><span class="dc-h-pos"></span><span>Quest</span><span class="dc-h-owner">Owner</span><span class="r">Value</span><span class="dc-h-due">Due</span><span>Status</span></div>
         <div id="depthList"></div>
@@ -669,7 +634,7 @@
         <div class="sec-head">
           <span class="num gold">RPT</span>
           <h2>Season Report — The Whole Picture</h2>
-          <p>Every quest on one page, read-only. The marks fill in as quests are claimed on the Quests, Season, and Roster tabs.</p>
+          <p>Every quest on one page, read-only, in the same order as the Roster. The marks fill in as quests are claimed on the Play and Roster tabs.</p>
         </div>
         <div class="rep-stats">
           <div class="rep-stat"><span class="k">Quests Cleared</span><span class="v" id="repQuests">0 / 21</span></div>
@@ -1405,52 +1370,87 @@
           + rosterDetailsHTML(q)
           + '</div>';
       }
-      var DC_GROUPS = [
-        ["zero","Quest Zero — Fetch Chain"],
-        ["setup","Setup — Accounts & Portals"],
-        ["season","The Season — Side Quests & Bosses"]
+      /* ============ CANONICAL LIST ORDER (Roster + Report share it) ============
+         Quest Zero -> setup/season quests -> bosses by deadline -> Jackpot.
+         Roster renders these groups with working Claim buttons; Report
+         renders the identical groups and sequence, read-only. */
+      var LIST_GROUPS = [
+        { key:"zero", name:"Quest Zero — Fetch Chain",
+          filter:function(q){ return q.sec==="zero"; } },
+        { key:"setup-season", name:"Setup & Season Quests",
+          filter:function(q){ return q.sec==="setup" || (q.sec==="season" && q.kind!=="boss"); } },
+        { key:"bosses", name:"Boss Battles — By Deadline",
+          filter:function(q){ return q.kind==="boss"; }, byDeadline:true },
+        { key:"jackpot", name:"Jackpot", jackpot:true }
       ];
+      function listGroupQuests(g){
+        if(g.jackpot) return [];
+        var list = QUESTS.filter(g.filter);
+        if(g.byDeadline){
+          list = list.slice().sort(function(a,b){
+            var ta = hudDeadlineTime(a), tb = hudDeadlineTime(b);
+            if(ta===null && tb===null) return QUESTS.indexOf(a) - QUESTS.indexOf(b);
+            if(ta===null) return 1;
+            if(tb===null) return -1;
+            return ta - tb;
+          });
+        }
+        return list;
+      }
+      function rosterJackpotHTML(){
+        return '<div class="dc-row boss" id="depth-jackpot">'
+          + '<div class="dc-check" aria-hidden="true">✓</div>'
+          + '<div class="dc-pos boss">JACK</div>'
+          + '<div class="dc-main"><div class="dc-title">Jackpot Bonus Drop — Scholarship Win</div>'
+          + '<div class="dc-meta"><span class="dc-mplayer">Matthew · </span><span data-jackpot-meta>Any scholarship win</span></div></div>'
+          + '<div class="dc-player">Matthew</div>'
+          + '<div class="dc-value">$25</div>'
+          + '<div class="dc-due">—</div>'
+          + '<button class="claim-btn small" type="button" data-jackpot="1"><span>Claim +$25</span></button>'
+          + '</div>';
+      }
       function renderDepth(){
         var html = "";
-        DC_GROUPS.forEach(function(g){
-          html += '<div class="dc-group"><div class="dc-group-head"><span class="dc-group-name">'+g[1]+'</span><span class="dc-group-prog" data-dc-progress="'+g[0]+'"></span></div>'
-            + QUESTS.filter(function(q){return q.sec===g[0];}).map(depthHTML).join("") + '</div>';
+        LIST_GROUPS.forEach(function(g){
+          html += '<div class="dc-group"><div class="dc-group-head"><span class="dc-group-name">'+g.name+'</span><span class="dc-group-prog" data-prog="roster:'+g.key+'"></span></div>'
+            + (g.jackpot ? rosterJackpotHTML() : listGroupQuests(g).map(depthHTML).join("")) + '</div>';
         });
         document.getElementById("depthList").innerHTML = html;
       }
 
       /* ================= RENDER — SEASON REPORT (read-only) ================= */
-      var REP_GROUPS = [
-        ["Quest Zero", function(q){ return q.sec==="zero" && q.player==="matthew"; }],
-        ["Setup", function(q){ return q.sec==="setup"; }],
-        ["Side Quests", function(q){ return q.kind==="side"; }],
-        ["Season Bosses", function(q){ return q.kind==="boss"; }],
-        ["Parent & Support", function(q){ return q.kind==="support"; }]
-      ];
+      /* Report groups come from LIST_GROUPS (defined with the Roster) so the
+         two full lists are one list at two densities — same groups, same order. */
       function repHTML(q){
         var val = q.value>0 ? "$"+q.value : (q.player==="jeff" ? "+$5 bank" : "Key item");
         if(q.repeatable) val = "$10 ea";
         var sub = playerName(q.player) + (q.deadline ? " · ⏰ "+dueShort(q) : "") + (q.repeatable ? " · per application" : "");
         return '<div class="rep-row'+(q.kind==="boss"?" boss":"")+'" id="rep-'+q.id+'">'
           + '<div class="rep-mark" aria-hidden="true">✓</div>'
-          + '<div class="rep-main"><div class="rep-title">'+q.title+'</div><div class="rep-sub">'+sub+'</div>'+detailsHTML(q, true)+'</div>'
+          + '<div class="rep-main"><div class="rep-title">'+q.title+'</div><div class="rep-sub">'+sub+'</div></div>'
           + '<div class="rep-owner">'+playerName(q.player)+'</div>'
           + '<div class="rep-value">'+val+'</div>'
           + '<div class="rep-due">'+(q.deadline ? dueShort(q) : "—")+'</div>'
           + '</div>';
       }
+      function repJackpotHTML(){
+        return '<div class="rep-row boss" id="rep-jackpot">'
+          + '<div class="rep-mark" aria-hidden="true">✓</div>'
+          + '<div class="rep-main"><div class="rep-title">Jackpot Bonus Drop — Scholarship Win</div><div class="rep-sub">Matthew · any scholarship win</div></div>'
+          + '<div class="rep-owner">Matthew</div>'
+          + '<div class="rep-value">$25</div>'
+          + '<div class="rep-due">—</div>'
+          + '</div>';
+      }
       function renderReport(){
         var html = "";
-        REP_GROUPS.forEach(function(g){
-          var list = QUESTS.filter(g[1]);
-          html += '<div class="rep-group"><div class="rep-group-head"><span>'+g[0]+'</span><span class="rp" data-rep-progress="'+g[0]+'"></span></div>'
-            + list.map(repHTML).join("") + '</div>';
+        LIST_GROUPS.forEach(function(g){
+          html += '<div class="rep-group"><div class="rep-group-head"><span>'+g.name+'</span><span class="rp" data-prog="report:'+g.key+'"></span></div>'
+            + (g.jackpot ? repJackpotHTML() : listGroupQuests(g).map(repHTML).join("")) + '</div>';
         });
         document.getElementById("repList").innerHTML = html;
       }
       function renderAll(){
-        var seasonEl = document.getElementById("quests-season");
-        if(seasonEl) seasonEl.innerHTML = QUESTS.filter(function(q){return q.sec==="season";}).map(questHTML).join("");
         renderDepth();
         renderReport();
         update();
@@ -1532,22 +1532,29 @@
         document.getElementById("repEarned").textContent = "$"+earned;
         document.getElementById("repPot").textContent = pct+"% of $"+POT;
         document.getElementById("repBank").textContent = "$"+state.bank;
-        var jb = document.getElementById("jackpotBtn");
-        if(jb) jb.textContent = state.jackpot ? "🏆 Win drop claimed ×"+state.jackpot+" — claim another +$25" : "🏆 Scholarship won? Claim the +$25 drop";
+        var jRowD = document.getElementById("depth-jackpot");
+        if(jRowD){
+          jRowD.classList.toggle("done", state.jackpot>0);
+          var jMeta = jRowD.querySelector("[data-jackpot-meta]");
+          if(jMeta) jMeta.textContent = state.jackpot>0 ? "Claimed ×"+state.jackpot+" · $"+(state.jackpot*25)+" dropped" : "Any scholarship win";
+          var jBtnSpan = jRowD.querySelector("button[data-jackpot] span");
+          if(jBtnSpan) jBtnSpan.textContent = state.jackpot>0 ? "Claim +$25 (×"+state.jackpot+" claimed)" : "Claim +$25";
+        }
+        var jRowR = document.getElementById("rep-jackpot");
+        if(jRowR) jRowR.classList.toggle("done", state.jackpot>0);
         document.getElementById("repOvr").textContent = newOvr;
-        REP_GROUPS.forEach(function(g){
-          var list = QUESTS.filter(g[1]);
-          var d = list.filter(function(q){ return q.repeatable ? state.extraApps>0 : !!state.done[q.id]; }).length;
-          var el = document.querySelector('[data-rep-progress="'+g[0]+'"]');
-          if(el) el.textContent = d+" / "+list.length+" cleared";
-        });
-        ["zero","setup","season"].forEach(function(sec){
-          var list = QUESTS.filter(function(q){return q.sec===sec;});
-          var d = list.filter(function(q){return state.done[q.id];}).length;
-          var el = document.querySelector('[data-sec-progress="'+sec+'"]');
-          if(el) el.innerHTML = "<strong>"+d+"</strong> / "+list.length+" cleared";
-          var del = document.querySelector('[data-dc-progress="'+sec+'"]');
-          if(del) del.innerHTML = "<strong>"+d+"</strong> / "+list.length+" cleared";
+        LIST_GROUPS.forEach(function(g){
+          var d, total;
+          if(g.jackpot){ d = state.jackpot>0 ? 1 : 0; total = 1; }
+          else {
+            var glist = listGroupQuests(g);
+            total = glist.length;
+            d = glist.filter(function(q){ return q.repeatable ? state.extraApps>0 : !!state.done[q.id]; }).length;
+          }
+          var rel = document.querySelector('[data-prog="roster:'+g.key+'"]');
+          if(rel) rel.innerHTML = "<strong>"+d+"</strong> / "+total+" cleared";
+          var pel = document.querySelector('[data-prog="report:'+g.key+'"]');
+          if(pel) pel.textContent = d+" / "+total+" cleared";
         });
         /* refresh quest visuals — board cards and depth chart rows stay in sync */
         QUESTS.forEach(function(q){
@@ -1749,7 +1756,7 @@
       /* ================= PLAY SCREEN — LOCKER ROOM HUD =================
          The main screen: one slim top bar (name + earned), one Season XP bar,
          NEXT UP, tappable Boss Weeks, and ONLY the selected player's missions
-         as chunky cards whose medallion is the claim control. All money math,
+         as chunky cards with a named Claim button; the medallion is a status display only. All money math,
          sounds, and sync stay in the shared claim()/update() code above —
          this block only renders state and routes taps. */
       var HUD_ICONS = {
@@ -1812,10 +1819,6 @@
         if(q.more) html += '<p>'+q.more+'</p>';
         else if(q.desc) html += '<p>'+q.desc+'</p>';
         html += hudLinksHTML(q);
-        if(q.repeatable){
-          html += '<button type="button" class="hud-claim-btn" data-claim="'+q.id+'">+ Claim $10</button>';
-          if(state.extraApps>0) html += '<button type="button" class="hud-undo-one" data-undo-one="'+q.id+'">Undo one −$10</button>';
-        }
         return html;
       }
       function hudMissionHTML(q){
@@ -1832,29 +1835,43 @@
         if(locked) tags += '<span class="locktag">🔒 Co-op — locked until Dad clears “FAFSA Parent Section + Sign”</span>';
         if(done && isBoss && q._bankPaid) tags += '<span class="kickoff">Includes +$'+q._bankPaid+' bank payout</span>';
         var open = !!hudOpenDetails[q.id];
+        /* The medallion is a pure status display — the labeled Claim button
+           below is the ONLY claim control on the card. */
+        var actions;
+        if(q.repeatable){
+          actions = '<button type="button" class="hud-claim-btn" data-claim="'+q.id+'">Claim +$10'+(state.extraApps>0 ? " ("+state.extraApps+" claimed)" : "")+'</button>'
+            + (state.extraApps>0 ? '<button type="button" class="hud-undo-one" data-undo-one="'+q.id+'">Undo one −$10</button>' : '');
+        } else if(done){
+          actions = '<button type="button" class="hud-claim-btn undo" data-claim="'+q.id+'" aria-pressed="true">✓ Claimed — undo</button>';
+        } else if(locked){
+          actions = '<button type="button" class="hud-claim-btn" data-claim="'+q.id+'" disabled>Claim</button>';
+        } else {
+          actions = '<button type="button" class="hud-claim-btn" data-claim="'+q.id+'" aria-pressed="false">Claim</button>';
+        }
         return '<article id="mission-'+q.id+'" class="mission'+(shownDone?" done":"")+(isBoss?" boss":"")+(locked?" locked":"")+'">'
-          + '<button type="button" class="medallion'+(isBoss?" bossMedal":"")+(locked?" lockedMedal":"")+(hudPopId===q.id?" pop":"")+'" data-claim="'+q.id+'" aria-label="Claim '+q.title+'">'+medal+'</button>'
+          + '<div class="medallion'+(isBoss?" bossMedal":"")+(locked?" lockedMedal":"")+(hudPopId===q.id?" pop":"")+'" aria-hidden="true">'+medal+'</div>'
           + '<div class="mission-main"><div class="mission-title">'+q.title+'</div>'
           + '<div class="mission-sub"><span class="rewardBig">'+hudRewardText(q, done)+'</span>'+tags+'</div>'
           + '<button type="button" class="hud-details-btn" data-hud-details="'+q.id+'" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'+hudDetailsBody(q)+'</div>'
+          + actions
           + '</div></article>';
       }
       function hudJackpotHTML(){
         var open = !!hudOpenDetails["jackpot"];
         return '<article id="mission-jackpot" class="mission boss">'
-          + '<button type="button" class="medallion bossMedal" data-jackpot="1" aria-label="Claim the jackpot bonus drop">🏆</button>'
+          + '<div class="medallion bossMedal" aria-hidden="true">🏆</div>'
           + '<div class="mission-main"><div class="mission-title">Jackpot Bonus Drop — Scholarship Win</div>'
           + '<div class="mission-sub"><span class="rewardBig">+$25</span><span class="kickoff">Any scholarship win</span>'
           + (state.jackpot>0 ? '<span class="kickoff">Claimed ×'+state.jackpot+'</span>' : '')
           + '</div>'
+          + '<button type="button" class="hud-claim-btn gold" data-jackpot="1">Claim +$25</button>'
           + '<button type="button" class="hud-details-btn" data-hud-details="jackpot" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'
           + '<div class="hud-done-when"><span class="hud-done-when-label">✓ Done When:</span> a scholarship award letter or email stating the amount has actually been received. An application submission, or an admission letter with no award, does not count.</div>'
           + '<p>Any scholarship Matthew actually <strong>wins</strong> pays a <strong>+$25 bonus drop</strong> — on top of the scholarship itself. When an aid offer arrives, INvestEd\'s free Award Advisor standardizes it so offers can be compared side by side.</p>'
           + '<div class="detail-links"><a class="detail-link" href="https://investedindiana.org/AwardAdvisor" target="_blank" rel="noopener noreferrer">INvestEdIndiana.org/AwardAdvisor ↗</a></div>'
           + '<p style="margin-top:8px">Free INvestEd help line: <a href="tel:+13177159007">317-715-9007</a> · <a href="mailto:Outreach@INvestEdIndiana.org">Outreach@INvestEdIndiana.org</a></p>'
-          + '<button type="button" class="hud-claim-btn gold" data-jackpot="1">🏆 Scholarship won? Claim the +$25 drop</button>'
           + '</div></div></article>';
       }
       /* NEXT UP follows the board's layers, not raw deadline order.
@@ -1927,7 +1944,7 @@
           note.textContent = "Keeper of Scrolls: one mission, season-critical. The transcript unlocks the GPA calls and filters the scholarship lists.";
         } else {
           head.textContent = "Your Missions — Matthew Only";
-          note.textContent = "Tap a medallion to claim. Tap it again to undo — money and bank reverse exactly. Bosses drain the Party Bonus Bank into their payout.";
+          note.textContent = "Use a mission's Claim button to claim it — tap ✓ Claimed — undo to reverse; money and bank reverse exactly. Bosses drain the Party Bonus Bank into their payout.";
         }
         var html = QUESTS.filter(function(q){ return q.player===key; }).map(hudMissionHTML).join("");
         if(key==="matthew") html += hudJackpotHTML();
@@ -1950,7 +1967,7 @@
         label.textContent = pName==="Matthew" ? "Your Next Mission" : pName+"'s Next Mission";
         if(!nx){
           title.textContent = "All missions cleared 🏆";
-          desc.textContent = "Nothing open for "+pName+" right now. Switch players from the name up top, or check the Season tab.";
+          desc.textContent = "Nothing open for "+pName+" right now. Switch players from the name up top, or check the Roster tab.";
           rew.textContent = "—"; tag.textContent = "Cleared";
           btn.style.display = "none";
           if(nuDetails) nuDetails.innerHTML = "";
@@ -1965,7 +1982,7 @@
             : (nx.kind==="boss" && state.bank>0 ? "$"+nx.value+" + $"+state.bank+" bank = $"+(nx.value+state.bank)
             : (nx.repeatable ? "+$10" : (nx.value>0 ? "+$"+nx.value : "Unlocks the season")));
           tag.textContent = hudTag(nx) + (nx.deadline ? " · "+dueShort(nx) : "");
-          btn.textContent = nx.repeatable ? "Claim +$10" : "Claim it";
+          btn.textContent = nx.repeatable ? "Claim +$10" : "Claim";
           if(nuDetails){
             nuDetails.innerHTML = hudDetailsBody(nx);
             nuDetails.classList.toggle("open", hudNextDetailsOpen);
@@ -2039,7 +2056,7 @@
       });
 
       /* ================= VIEW TABS ================= */
-      var VIEW_NAMES = ["play","season","roster","report"];
+      var VIEW_NAMES = ["play","roster","report"];
       function measureHeader(){
         var h = document.querySelector("header.gamebar");
         if(h) document.documentElement.style.setProperty("--hdrh", h.offsetHeight + "px");
@@ -2114,12 +2131,15 @@
         if(installBtn){
           installBtn.addEventListener("click", function(){
             if(!deferredPrompt){ hideInstall(); return; }
-            var promptEvent = deferredPrompt;
+            var installEvent = deferredPrompt;
             deferredPrompt = null;
             try{
-              promptEvent.prompt();
-              if(promptEvent.userChoice && promptEvent.userChoice.then){
-                promptEvent.userChoice.then(hideInstall, hideInstall);
+              /* Fire the browser's own install offer (the method the
+                 beforeinstallprompt event carries), bound to that event. */
+              var showOffer = installEvent.prompt;
+              if(typeof showOffer === "function") showOffer.call(installEvent);
+              if(installEvent.userChoice && installEvent.userChoice.then){
+                installEvent.userChoice.then(hideInstall, hideInstall);
               }else{
                 hideInstall();
               }
