@@ -549,6 +549,21 @@
       .dc-note-glyph{margin-left:6px;font-size:12px}
       .qdetails .note-section{border-top-color:var(--line-soft)}
       .hud-undo-one{width:100%;margin-top:8px;background:transparent;border:1px solid #6e2430;color:#ffb3ba;border-radius:10px;padding:10px;font-weight:900;cursor:pointer;font-size:13.5px}
+      /* ---------- due-date urgency tiers + owner name colors ----------
+         Tier classes are computed at render time from the viewer's local
+         today (see dueTier in the script) and refreshed on every update(),
+         so colors roll over at midnight without a reload. */
+      .due-30{color:var(--gold)}
+      .due-14{color:#ff9f43}
+      .due-7{color:var(--red);font-weight:800}
+      .due-now{color:#ff2442;font-weight:900}
+      .due-done{color:#2f9957}
+      .own-jeff{color:var(--gold)}
+      .own-lisa{color:var(--pink)}
+      .own-matthew{color:var(--cyan)}
+      @media print{
+        .due-30,.due-14,.due-7,.due-now,.due-done,.own-jeff,.own-lisa,.own-matthew{color:#333 !important;font-weight:inherit}
+      }
       @media (max-width:480px){
         .hud-sound{width:32px;height:32px;font-size:15px}
         .hud-inner{padding:8px 12px 6px}
@@ -675,7 +690,6 @@
 
     <footer>
       <div class="footer-inner">
-        <p><strong>Prototype model</strong> — values, pot ceiling ($200 default), and instant-vs-weekly payout are draft decisions. Quest list is modeled from Matthew's real deadlines: IU Indianapolis Nov 15, 2026 · CICF Feb 1, 2027 · IU general Feb 15, 2027 · HSEF Mar 4, 2027, 11:59 PM · FAFSA Apr 15, 2027 (Indiana priority).</p>
         <div class="reset-zone" id="installZone" hidden>
           <p>Put College Pay Day on this device's home screen — opens full-screen, no browser bar.</p>
           <button class="reset-btn" type="button" id="installBtn" hidden>Install app</button>
@@ -1427,6 +1441,56 @@
         if(!q.deadline) return "";
         return q.deadline.split("·").slice(1).join("·").trim();
       }
+      /* Due-date urgency: whole days from the viewer's local today to the
+         quest's date, recomputed on every render/update. Open quests heat up
+         gold (≤30d) -> orange (≤14d) -> red (≤7d) -> brightest red (due or
+         overdue); claimed quests cool to dimmed green. */
+      var DUE_TIER_CLASSES = ["due-30","due-14","due-7","due-now","due-done"];
+      function dueTierForTime(t, done){
+        if(done) return "due-done";
+        var now = new Date();
+        var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        var days = Math.round((t - todayStart)/86400000);
+        if(days<=0) return "due-now";
+        if(days<=7) return "due-7";
+        if(days<=14) return "due-14";
+        if(days<=30) return "due-30";
+        return "";
+      }
+      function dueTier(q){
+        if(!q || !q.deadline) return "";
+        var t = hudDeadlineTime(q);
+        if(t===null) return "";
+        return dueTierForTime(t, !!state.done[q.id]);
+      }
+      function setDueCls(el, cls){
+        DUE_TIER_CLASSES.forEach(function(c){ el.classList.remove(c); });
+        if(cls) el.classList.add(cls);
+      }
+      /* Repaint every live date label: [data-due-for] spans follow their
+         quest's deadline + claimed state; [data-due-ts] spans (dates inside
+         Details prose, e.g. the "Opens Mon · Nov 16, 2026" label) follow the
+         date they carry + their quest's claimed state. */
+      function refreshDueColors(){
+        document.querySelectorAll("[data-due-for]").forEach(function(el){
+          var q = byId[el.getAttribute("data-due-for")];
+          if(q) setDueCls(el, dueTier(q));
+        });
+        document.querySelectorAll("[data-due-ts]").forEach(function(el){
+          var q = byId[el.getAttribute("data-due-q")];
+          setDueCls(el, dueTierForTime(Number(el.getAttribute("data-due-ts")), q ? !!state.done[q.id] : false));
+        });
+      }
+      /* Wrap "Nov 16, 2026"-style dates in Details prose with their urgency
+         tier — render-time only, quest text itself is untouched. */
+      function colorizeDates(html, q){
+        var done = !!state.done[q.id];
+        return html.replace(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{1,2}),\s*(\d{4})/g, function(m, mon, day, yr){
+          var t = new Date(Number(yr), HUD_MONTHS[mon], Number(day)).getTime();
+          var cls = dueTierForTime(t, done);
+          return '<span data-due-ts="'+t+'" data-due-q="'+q.id+'"'+(cls ? ' class="'+cls+'"' : '')+'>'+m+'</span>';
+        });
+      }
       function rosterDetailsHTML(q){
         if(!q.more && !q.doneWhen) return "";
         var doneHtml = q.doneWhen ? '<div class="hud-done-when"><span class="hud-done-when-label">✓ Done When:</span> '+q.doneWhen+'</div>' : "";
@@ -1435,7 +1499,7 @@
         else if(q.links && q.links.length){
           linksHtml = '<div class="detail-links">' + q.links.map(function(l){ return '<a class="detail-link" href="'+l.href+'" target="_blank" rel="noopener noreferrer">'+l.label+' ↗</a>'; }).join("") + '</div>';
         } else if(q.noLinkNote){ linksHtml = '<div class="detail-nolink">'+q.noLinkNote+'</div>'; }
-        var moreHtml = q.more ? '<p>'+q.more+'</p>' : (q.desc ? '<p>'+q.desc+'</p>' : "");
+        var moreHtml = q.more ? '<p>'+colorizeDates(q.more, q)+'</p>' : (q.desc ? '<p>'+colorizeDates(q.desc, q)+'</p>' : "");
         var repeatHtml = q.repeatable ? '<div class="dc-repeat-note" data-dc-repeat="'+q.id+'"></div>' : "";
         return '<details class="qdetails dc-details"><summary>Details <span class="chev" aria-hidden="true">▸</span></summary>'
           + '<div class="qdetails-body roster-details-body">'+doneHtml+moreHtml+linksHtml+repeatHtml+noteSectionHTML(q.id)+'</div></details>';
@@ -1453,11 +1517,11 @@
           + '<div class="dc-check" aria-hidden="true">✓</div>'
           + '<div class="dc-pos '+q.kind+'">'+kindTag(q)+'</div>'
           + '<div class="dc-main"><div class="dc-title">'+q.title+'</div>'
-          + '<div class="dc-meta"><span class="dc-mplayer">'+playerName(q.player)+' · </span>'+(q.deadline ? '<span class="dc-mdue">⏰ '+dueShort(q)+' · </span>' : '')+extra+'</div>'
+          + '<div class="dc-meta"><span class="dc-mplayer own-'+q.player+'">'+playerName(q.player)+' · </span>'+(q.deadline ? '<span class="dc-mdue '+dueTier(q)+'" data-due-for="'+q.id+'">⏰ '+dueShort(q)+' · </span>' : '')+extra+'</div>'
           + gate + '<div class="note-face-wrap" data-note-face-wrap="'+q.id+'">'+noteFaceHTML(q.id)+'</div></div>'
-          + '<div class="dc-player">'+playerName(q.player)+'</div>'
+          + '<div class="dc-player own-'+q.player+'">'+playerName(q.player)+'</div>'
           + '<div class="dc-value">'+val+'</div>'
-          + '<div class="dc-due">'+(q.deadline ? dueShort(q) : "—")+'</div>'
+          + '<div class="dc-due '+(q.deadline ? dueTier(q) : '')+'"'+(q.deadline ? ' data-due-for="'+q.id+'"' : '')+'>'+(q.deadline ? dueShort(q) : "—")+'</div>'
           + (q.repeatable
               ? '<div class="dc-actions"><button class="claim-btn small" type="button" data-claim="'+q.id+'" aria-pressed="false"><span>Claim +$10</span></button>'
                 + '<button class="undo-one-btn small" type="button" data-undo-one="'+q.id+'" hidden disabled><span>Undo one −$10</span></button></div>'
@@ -1497,8 +1561,8 @@
           + '<div class="dc-check" aria-hidden="true">✓</div>'
           + '<div class="dc-pos boss">JACK</div>'
           + '<div class="dc-main"><div class="dc-title">Jackpot Bonus Drop — Scholarship Win</div>'
-          + '<div class="dc-meta"><span class="dc-mplayer">Matthew · </span><span data-jackpot-meta>Any scholarship win</span></div><div class="note-face-wrap" data-note-face-wrap="jackpot">'+noteFaceHTML("jackpot")+'</div></div>'
-          + '<div class="dc-player">Matthew</div>'
+          + '<div class="dc-meta"><span class="dc-mplayer own-matthew">Matthew · </span><span data-jackpot-meta>Any scholarship win</span></div><div class="note-face-wrap" data-note-face-wrap="jackpot">'+noteFaceHTML("jackpot")+'</div></div>'
+          + '<div class="dc-player own-matthew">Matthew</div>'
           + '<div class="dc-value">$25</div>'
           + '<div class="dc-due">—</div>'
           + '<button class="claim-btn small" type="button" data-jackpot="1"><span>Claim +$25</span></button>'
@@ -1519,20 +1583,20 @@
       function repHTML(q){
         var val = q.value>0 ? "$"+q.value : (q.player==="jeff" ? "+$5 bank" : "Key item");
         if(q.repeatable) val = "$10 ea";
-        var sub = playerName(q.player) + (q.deadline ? " · ⏰ "+dueShort(q) : "") + (q.repeatable ? " · per application" : "");
+        var sub = '<span class="own-'+q.player+'">'+playerName(q.player)+'</span>' + (q.deadline ? ' · ⏰ <span class="'+dueTier(q)+'" data-due-for="'+q.id+'">'+dueShort(q)+'</span>' : "") + (q.repeatable ? " · per application" : "");
         return '<div class="rep-row'+(q.kind==="boss"?" boss":"")+'" id="rep-'+q.id+'">'
           + '<div class="rep-mark" aria-hidden="true">✓</div>'
           + '<div class="rep-main"><div class="rep-title">'+q.title+'</div><div class="rep-sub">'+sub+'</div></div>'
-          + '<div class="rep-owner">'+playerName(q.player)+'</div>'
+          + '<div class="rep-owner own-'+q.player+'">'+playerName(q.player)+'</div>'
           + '<div class="rep-value">'+val+'</div>'
-          + '<div class="rep-due">'+(q.deadline ? dueShort(q) : "—")+'</div>'
+          + '<div class="rep-due '+(q.deadline ? dueTier(q) : '')+'"'+(q.deadline ? ' data-due-for="'+q.id+'"' : '')+'>'+(q.deadline ? dueShort(q) : "—")+'</div>'
           + '</div>';
       }
       function repJackpotHTML(){
         return '<div class="rep-row boss" id="rep-jackpot">'
           + '<div class="rep-mark" aria-hidden="true">✓</div>'
-          + '<div class="rep-main"><div class="rep-title">Jackpot Bonus Drop — Scholarship Win</div><div class="rep-sub">Matthew · any scholarship win</div></div>'
-          + '<div class="rep-owner">Matthew</div>'
+          + '<div class="rep-main"><div class="rep-title">Jackpot Bonus Drop — Scholarship Win</div><div class="rep-sub"><span class="own-matthew">Matthew</span> · any scholarship win</div></div>'
+          + '<div class="rep-owner own-matthew">Matthew</div>'
           + '<div class="rep-value">$25</div>'
           + '<div class="rep-due">—</div>'
           + '</div>';
@@ -1691,6 +1755,7 @@
           if(rrow) rrow.classList.toggle("done", q.repeatable ? state.extraApps>0 : done);
         });
         renderHud();
+        refreshDueColors();
         /* Keep Roster note face blocks + note sections in step with the current
            (local or server-adopted) notes, without a full Roster re-render. */
         document.querySelectorAll("[data-note-face-wrap]").forEach(function(w){ w.innerHTML = noteFaceHTML(w.getAttribute("data-note-face-wrap")); });
@@ -1954,8 +2019,8 @@
       function hudDetailsBody(q){
         var html = "";
         if(q.doneWhen) html += '<div class="hud-done-when"><span class="hud-done-when-label">✓ Done When:</span> '+q.doneWhen+'</div>';
-        if(q.more) html += '<p>'+q.more+'</p>';
-        else if(q.desc) html += '<p>'+q.desc+'</p>';
+        if(q.more) html += '<p>'+colorizeDates(q.more, q)+'</p>';
+        else if(q.desc) html += '<p>'+colorizeDates(q.desc, q)+'</p>';
         html += hudLinksHTML(q);
         html += noteSectionHTML(q.id);
         return html;
@@ -1967,7 +2032,7 @@
         var isBoss = q.kind==="boss";
         var medal = done ? "✓" : (locked ? "🔒" : (HUD_ICONS[q.id] || "🎯"));
         var tags = '<span class="kickoff">'+hudTag(q)+'</span>';
-        if(q.deadline) tags += '<span class="kickoff">Kickoff · '+dueShort(q)+'</span>';
+        if(q.deadline) tags += '<span class="kickoff">Kickoff · <span class="'+dueTier(q)+'" data-due-for="'+q.id+'">'+dueShort(q)+'</span></span>';
         if(q.earlyBird) tags += '<span class="kickoff">Early bird +$5</span>';
         if(q.facts) tags += '<span class="kickoff">'+q.facts+'</span>';
         if(q.repeatable && state.extraApps>0) tags += '<span class="kickoff">×'+state.extraApps+' claimed · $'+(state.extraApps*10)+' earned</span>';
@@ -2107,7 +2172,7 @@
             nuDetails = document.getElementById("nextupDetails"), nuBtn = document.getElementById("nextupDetailsBtn"),
             nuNote = document.getElementById("nextupNote");
         if(!label || !title) return;
-        label.textContent = pName==="Matthew" ? "Your Next Mission" : pName+"'s Next Mission";
+        label.innerHTML = pName==="Matthew" ? "Your Next Mission" : '<span class="own-'+key+'">'+pName+'</span>\'s Next Mission';
         if(!nx){
           title.textContent = "All missions cleared 🏆";
           desc.textContent = "Nothing open for "+pName+" right now. Switch players from the name up top, or check the Roster tab.";
@@ -2125,7 +2190,7 @@
           rew.textContent = nx.player==="jeff" ? "Banks +$5"
             : (nx.kind==="boss" && state.bank>0 ? "$"+nx.value+" + $"+state.bank+" bank = $"+(nx.value+state.bank)
             : (nx.repeatable ? "+$10" : (nx.value>0 ? "+$"+nx.value : "Unlocks the season")));
-          tag.textContent = hudTag(nx) + (nx.deadline ? " · "+dueShort(nx) : "");
+          tag.innerHTML = hudTag(nx) + (nx.deadline ? ' · <span class="'+dueTier(nx)+'" data-due-for="'+nx.id+'">'+dueShort(nx)+'</span>' : '');
           if(nuNote) nuNote.innerHTML = noteFaceHTML(nx.id);
           btn.textContent = nx.repeatable ? "Claim +$10" : "Claim";
           if(nuDetails){
