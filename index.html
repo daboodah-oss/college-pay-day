@@ -540,6 +540,12 @@
       .note-save-btn{background:linear-gradient(180deg,var(--green-light),var(--green));border:1px solid var(--green-dark);color:var(--green-ink);border-radius:6px;padding:8px 16px;font-weight:900;font-size:13.5px}
       .note-cancel-btn{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:8px 14px;font-weight:700;font-size:13.5px}
       .mission-note-preview{font-size:12.5px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+      .note-face-block{margin-top:8px}
+      .note-face-block .note-text{white-space:normal}
+      .dc-row .note-face-block{margin-top:6px;max-width:100%}
+      .dc-main .note-face-wrap:empty{display:none}
+      .nextup-note-face{margin-top:10px}
+      .nextup-note-face:empty{display:none}
       .dc-note-glyph{margin-left:6px;font-size:12px}
       .qdetails .note-section{border-top-color:var(--line-soft)}
       .hud-undo-one{width:100%;margin-top:8px;background:transparent;border:1px solid #6e2430;color:#ffb3ba;border-radius:10px;padding:10px;font-weight:900;cursor:pointer;font-size:13.5px}
@@ -607,6 +613,7 @@
         <label id="nextupLabel">Your Next Mission</label>
         <h3 id="nextupTitle">—</h3>
         <p id="nextupDesc"></p>
+        <div id="nextupNote" class="nextup-note-face"></div>
         <div class="nextup-row"><span class="reward" id="nextupReward">—</span><span class="kickoff" id="nextupTag"></span><button type="button" id="nextupBtn">Claim</button></div>
         <div class="nextup-details-wrap">
           <button type="button" class="hud-details-btn" id="nextupDetailsBtn" aria-expanded="false">Details ▾</button>
@@ -1332,6 +1339,11 @@
         if(words.length > 6 || p.length < t.length) p += "…";
         return p;
       }
+      function noteFaceHTML(id){
+        var txt = noteText(id);
+        if(!txt) return "";
+        return '<div class="note-block note-face-block" data-note-face="'+id+'"><span class="note-text">'+linkifyNote(txt)+'</span></div>';
+      }
       function noteSectionHTML(id){
         var txt = noteText(id);
         if(noteEditing[id]){
@@ -1356,7 +1368,7 @@
       }
       function refreshNoteSections(id){
         document.querySelectorAll('[data-note-section="'+id+'"]').forEach(function(sec){ replaceNoteSection(sec, id); });
-        document.querySelectorAll('[data-dc-note-glyph="'+id+'"]').forEach(function(g){ g.hidden = !noteText(id); });
+        document.querySelectorAll('[data-note-face-wrap="'+id+'"]').forEach(function(w){ w.innerHTML = noteFaceHTML(id); });
       }
 
       /* ================= RENDER — QUEST BOARD ================= */
@@ -1440,9 +1452,9 @@
         return '<div class="dc-row'+(q.kind==="boss"?" boss":"")+'" id="depth-'+q.id+'">'
           + '<div class="dc-check" aria-hidden="true">✓</div>'
           + '<div class="dc-pos '+q.kind+'">'+kindTag(q)+'</div>'
-          + '<div class="dc-main"><div class="dc-title">'+q.title+'<span class="dc-note-glyph" data-dc-note-glyph="'+q.id+'" aria-label="Has note"'+(noteText(q.id) ? "" : " hidden")+'>📝</span></div>'
+          + '<div class="dc-main"><div class="dc-title">'+q.title+'</div>'
           + '<div class="dc-meta"><span class="dc-mplayer">'+playerName(q.player)+' · </span>'+(q.deadline ? '<span class="dc-mdue">⏰ '+dueShort(q)+' · </span>' : '')+extra+'</div>'
-          + gate + '</div>'
+          + gate + '<div class="note-face-wrap" data-note-face-wrap="'+q.id+'">'+noteFaceHTML(q.id)+'</div></div>'
           + '<div class="dc-player">'+playerName(q.player)+'</div>'
           + '<div class="dc-value">'+val+'</div>'
           + '<div class="dc-due">'+(q.deadline ? dueShort(q) : "—")+'</div>'
@@ -1485,7 +1497,7 @@
           + '<div class="dc-check" aria-hidden="true">✓</div>'
           + '<div class="dc-pos boss">JACK</div>'
           + '<div class="dc-main"><div class="dc-title">Jackpot Bonus Drop — Scholarship Win</div>'
-          + '<div class="dc-meta"><span class="dc-mplayer">Matthew · </span><span data-jackpot-meta>Any scholarship win</span></div></div>'
+          + '<div class="dc-meta"><span class="dc-mplayer">Matthew · </span><span data-jackpot-meta>Any scholarship win</span></div><div class="note-face-wrap" data-note-face-wrap="jackpot">'+noteFaceHTML("jackpot")+'</div></div>'
           + '<div class="dc-player">Matthew</div>'
           + '<div class="dc-value">$25</div>'
           + '<div class="dc-due">—</div>'
@@ -1679,9 +1691,9 @@
           if(rrow) rrow.classList.toggle("done", q.repeatable ? state.extraApps>0 : done);
         });
         renderHud();
-        /* Keep Roster note glyphs + note sections in step with the current
+        /* Keep Roster note face blocks + note sections in step with the current
            (local or server-adopted) notes, without a full Roster re-render. */
-        document.querySelectorAll("[data-dc-note-glyph]").forEach(function(g){ g.hidden = !noteText(g.getAttribute("data-dc-note-glyph")); });
+        document.querySelectorAll("[data-note-face-wrap]").forEach(function(w){ w.innerHTML = noteFaceHTML(w.getAttribute("data-note-face-wrap")); });
         var depthEl = document.getElementById("depthList");
         if(depthEl){ depthEl.querySelectorAll("[data-note-section]").forEach(function(sec){ replaceNoteSection(sec, sec.getAttribute("data-note-section")); }); }
         saveState();
@@ -1979,7 +1991,7 @@
           + '<div class="medallion'+(isBoss?" bossMedal":"")+(locked?" lockedMedal":"")+(hudPopId===q.id?" pop":"")+'" aria-hidden="true">'+medal+'</div>'
           + '<div class="mission-main"><div class="mission-title">'+q.title+'</div>'
           + '<div class="mission-sub"><span class="rewardBig">'+hudRewardText(q, done)+'</span>'+tags+'</div>'
-          + (noteText(q.id) ? '<div class="mission-note-preview">📝 '+escapeHTML(notePreviewText(q.id))+'</div>' : '')
+          + noteFaceHTML(q.id)
           + '<button type="button" class="hud-details-btn" data-hud-details="'+q.id+'" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'+hudDetailsBody(q)+'</div>'
           + actions
@@ -1993,7 +2005,7 @@
           + '<div class="mission-sub"><span class="rewardBig">+$25</span><span class="kickoff">Any scholarship win</span>'
           + (state.jackpot>0 ? '<span class="kickoff">Claimed ×'+state.jackpot+'</span>' : '')
           + '</div>'
-          + (noteText("jackpot") ? '<div class="mission-note-preview">📝 '+escapeHTML(notePreviewText("jackpot"))+'</div>' : '')
+          + noteFaceHTML("jackpot")
           + '<button type="button" class="hud-claim-btn gold" data-jackpot="1">Claim +$25</button>'
           + '<button type="button" class="hud-details-btn" data-hud-details="jackpot" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'
@@ -2092,7 +2104,8 @@
         var label = document.getElementById("nextupLabel"), title = document.getElementById("nextupTitle"),
             desc = document.getElementById("nextupDesc"), rew = document.getElementById("nextupReward"),
             tag = document.getElementById("nextupTag"), btn = document.getElementById("nextupBtn"),
-            nuDetails = document.getElementById("nextupDetails"), nuBtn = document.getElementById("nextupDetailsBtn");
+            nuDetails = document.getElementById("nextupDetails"), nuBtn = document.getElementById("nextupDetailsBtn"),
+            nuNote = document.getElementById("nextupNote");
         if(!label || !title) return;
         label.textContent = pName==="Matthew" ? "Your Next Mission" : pName+"'s Next Mission";
         if(!nx){
@@ -2100,6 +2113,7 @@
           desc.textContent = "Nothing open for "+pName+" right now. Switch players from the name up top, or check the Roster tab.";
           rew.textContent = "—"; tag.textContent = "Cleared";
           btn.style.display = "none";
+          if(nuNote) nuNote.innerHTML = "";
           if(nuDetails) nuDetails.innerHTML = "";
           if(nuBtn) nuBtn.style.display = "none";
           hudNextDetailsOpen = false;
@@ -2112,6 +2126,7 @@
             : (nx.kind==="boss" && state.bank>0 ? "$"+nx.value+" + $"+state.bank+" bank = $"+(nx.value+state.bank)
             : (nx.repeatable ? "+$10" : (nx.value>0 ? "+$"+nx.value : "Unlocks the season")));
           tag.textContent = hudTag(nx) + (nx.deadline ? " · "+dueShort(nx) : "");
+          if(nuNote) nuNote.innerHTML = noteFaceHTML(nx.id);
           btn.textContent = nx.repeatable ? "Claim +$10" : "Claim";
           if(nuDetails){
             nuDetails.innerHTML = hudDetailsBody(nx);
