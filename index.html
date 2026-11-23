@@ -181,6 +181,11 @@
       .badge.player-l{color:var(--pink);border-color:#5c3247;background:#1d1016}
       .badge.deadline{color:#ffd9dc;border-color:#6e2430;background:#230a0e}
       .badge.bonus{color:#ffe9a8;border-color:#6b5207;background:#1c1500;text-transform:none;letter-spacing:0}
+      .badge.new-badge{color:#fff;border-color:#ff4655;background:#ff4655;letter-spacing:.12em}
+      .new-flag{display:inline-block;background:var(--red);color:#fff;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;padding:3px 8px;border-radius:999px;text-transform:uppercase;vertical-align:middle;margin-left:8px;line-height:1.2;white-space:nowrap}
+      .new-flag.inline{margin-left:0}
+      .kickoff.new-kickoff{background:var(--red);color:#fff}
+      .nextup-new{display:inline-block;background:var(--red);color:#fff;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:12px;letter-spacing:.14em;padding:4px 9px;border-radius:999px;text-transform:uppercase;vertical-align:middle;margin-left:8px;line-height:1.2}
       .claim-btn{flex:0 0 auto;background:linear-gradient(180deg,var(--green-light),var(--green));border:1px solid var(--green-dark);color:var(--green-ink);font-weight:800;border-radius:4px;padding:10px 15px;font-size:14.5px;min-width:96px;transform:skewX(-8deg)}
       .claim-btn>span{display:inline-block;transform:skewX(8deg)}
       .claim-btn:hover{filter:brightness(1.1)}
@@ -676,7 +681,7 @@
           <p>Every quest on one page, read-only, in the same order as the Roster. The marks fill in as quests are claimed on the Play and Roster tabs.</p>
         </div>
         <div class="rep-stats">
-          <div class="rep-stat"><span class="k">Quests Cleared</span><span class="v" id="repQuests">0 / 21</span></div>
+          <div class="rep-stat"><span class="k">Quests Cleared</span><span class="v" id="repQuests">0 / 26</span></div>
           <div class="rep-stat"><span class="k">Earned</span><span class="v" style="color:var(--gold)" id="repEarned">$0</span></div>
           <div class="rep-stat"><span class="k">Pot Progress</span><span class="v" id="repPot">0%</span></div>
           <div class="rep-stat"><span class="k">Party Bonus Bank</span><span class="v" style="color:var(--cyan)" id="repBank">$0</span></div>
@@ -788,6 +793,21 @@
         { id:"ss-individual", sec:"season", player:"matthew", kind:"side", title:"Individual Scholarship Application",
           desc:"Each additional individual scholarship application beyond the big universal ones pays $10. Claim once per application submitted.",
           value:10, sound:"toot", repeatable:true },
+        { id:"ss-sallie-mae", sec:"season", player:"matthew", kind:"side", title:"Sallie Mae $2,000 No-Essay Scholarship",
+          desc:"$2,000 no-essay scholarship — monthly drawing. Entries do not roll over, so November needs its own entry.",
+          value:10, sound:"toot", deadline:"Mon · Nov 30, 2026", isNew:true },
+        { id:"ss-bold", sec:"season", player:"matthew", kind:"side", title:"Bold.org \u201CBe Bold\u201D $25,000 No-Essay Scholarship",
+          desc:"$25,000 no-essay scholarship on Bold.org.",
+          value:10, sound:"toot", deadline:"Mon · Nov 30, 2026", isNew:true },
+        { id:"ss-unigo", sec:"season", player:"matthew", kind:"side", title:"Unigo Education Matters $5,000 Scholarship",
+          desc:"$5,000 scholarship — short response of 250 words or less.",
+          value:10, sound:"toot", deadline:"Mon · Nov 30, 2026", isNew:true },
+        { id:"ss-appily", sec:"season", player:"matthew", kind:"side", title:"Appily $1,000 No-Essay Scholarship",
+          desc:"$1,000 no-essay scholarship on Appily.",
+          value:10, sound:"toot", deadline:"Mon · Nov 30, 2026", isNew:true },
+        { id:"ss-ninestar", sec:"season", player:"matthew", kind:"side", title:"NineStar Connect Scholarship",
+          desc:"$2,000 drawing — 15 awards. Winners drawn at random, no essay. Minimum GPA 2.75.",
+          value:10, sound:"toot", deadline:"Fri · Jan 22, 2027 · 3:00 PM ET", isNew:true },
         { id:"boss-cicf", sec:"season", player:"matthew", kind:"boss", title:"CICF / Hamilton County Scholarships Due",
           desc:"Central Indiana Community Foundation application — the county-wide pool, filtered to Matthew's real targets.",
           value:20, sound:"bosstoot", deadline:"Mon · Feb 1, 2027", matchup:"Matthew vs. The Feb 1 CICF Deadline", earlyBird:true },
@@ -874,6 +894,26 @@
           more:"Work from the filtered scholarship list built from the Quest Zero answers \u2014 that is the target list.",
           links:[]
         },
+        "ss-sallie-mae": {
+          more:"Monthly drawing; entries do not roll over, so November needs its own entry. No essay.",
+          links:[]
+        },
+        "ss-bold": {
+          more:"No essay. Enter on Bold.org and make sure the Bold profile is complete so the entry shows on the profile.",
+          links:[]
+        },
+        "ss-unigo": {
+          more:"Short response of 250 words or less.",
+          links:[]
+        },
+        "ss-appily": {
+          more:"No essay.",
+          links:[]
+        },
+        "ss-ninestar": {
+          more:"15 scholarships of $2,000, drawn at random — no essay. Minimum cumulative GPA 2.75; Matthew\u2019s 3.448 clears it. For a graduating senior living in a NineStar customer household.",
+          links:[{href:"https://www.ninestarconnect.com/scholarship", label:"ninestarconnect.com/scholarship"}]
+        },
         "boss-iu": {
           more:"Submit the IU Scholarships application through One.IU. Early-bird bonus: submit 7+ days early for +$5.",
           links:[{href:"https://one.iu.edu", label:"one.iu.edu"},{href:"https://indianapolis.iu.edu/cost-aid/scholarships/", label:"IU Indianapolis scholarships"}]
@@ -915,6 +955,11 @@
         "su-invested": "the entry form has been submitted and Matthew sees a confirmation screen, message, or email. Opening the entry page is not done.",
         "ss-essay": "a complete draft — with a beginning, middle, and ending — has been reviewed by Mom or Dad and feedback (or \u201Cno changes needed\u201D) has been returned. An outline or opening paragraph alone is not done.",
         "ss-individual": "that one named application has been fully submitted and has a submitted status or confirmation. One claim per submitted application — accounts, drafts, and started forms do not count.",
+        "ss-sallie-mae": "Matthew\u2019s November entry is submitted on the Sallie Mae scholarship site and the site confirms the entry.",
+        "ss-bold": "Matthew\u2019s entry is submitted on Bold.org and his Bold profile shows the entry.",
+        "ss-unigo": "the application shows Submitted on Unigo.",
+        "ss-appily": "Matthew\u2019s entry is submitted on Appily and confirmed.",
+        "ss-ninestar": "the application form is submitted on ninestarconnect.com and Matthew sees a confirmation.",
         "boss-iu": "One.IU shows the IU Scholarships application as Submitted by Nov 15, 2026.",
         "boss-fafsa": "StudentAid.gov shows the FAFSA as Submitted by Apr 15, 2027 (Indiana priority deadline), with Matthew\u2019s student section complete, consented, and signed, the contributor invitation sent to Dad, AND Dad\u2019s contributor section also complete \u2014 see the FAFSA Parent Section quest.",
         "jeff-fafsa": "Dad has completed the contributor section, given IRS consent, and signed, AND StudentAid.gov shows the FAFSA as Submitted by Apr 15, 2027 (Indiana priority deadline).",
@@ -1391,8 +1436,12 @@
         if(p==="jeff") return '<span class="badge player-j">Dad · Support</span>';
         return '<span class="badge player-l">Mom · Support</span>';
       }
+      function isNewQuest(q){ return !!(q && q.isNew && !state.done[q.id]); }
+      function newBadgeHTML(){ return '<span class="badge new-badge">★ NEW</span>'; }
+      function newFlagHTML(){ return '<span class="new-flag">★ NEW</span>'; }
       function questHTML(q){
         var badges = playerBadge(q.player);
+        if(isNewQuest(q)) badges += newBadgeHTML();
         if(q.kind==="boss") badges += '<span class="badge" style="color:var(--gold);border-color:#6b5207">Boss Battle</span>';
         if(q.kind==="side") badges += '<span class="badge">Side Quest</span>';
         if(q.kind==="support") badges += '<span class="badge">Support Quest</span>';
@@ -1516,8 +1565,8 @@
         return '<div class="dc-row'+(q.kind==="boss"?" boss":"")+'" id="depth-'+q.id+'">'
           + '<div class="dc-check" aria-hidden="true">✓</div>'
           + '<div class="dc-pos '+q.kind+'">'+kindTag(q)+'</div>'
-          + '<div class="dc-main"><div class="dc-title">'+q.title+'</div>'
-          + '<div class="dc-meta"><span class="dc-mplayer own-'+q.player+'">'+playerName(q.player)+' · </span>'+(q.deadline ? '<span class="dc-mdue '+dueTier(q)+'" data-due-for="'+q.id+'">⏰ '+dueShort(q)+' · </span>' : '')+extra+'</div>'
+          + '<div class="dc-main"><div class="dc-title">'+q.title+(isNewQuest(q) ? newFlagHTML() : '')+'</div>'
+          + '<div class="dc-meta">'+(isNewQuest(q) ? '<span class="new-flag inline">★ NEW</span> ' : '')+'<span class="dc-mplayer own-'+q.player+'">'+playerName(q.player)+' · </span>'+(q.deadline ? '<span class="dc-mdue '+dueTier(q)+'" data-due-for="'+q.id+'">⏰ '+dueShort(q)+' · </span>' : '')+extra+'</div>'
           + gate + '<div class="note-face-wrap" data-note-face-wrap="'+q.id+'">'+noteFaceHTML(q.id)+'</div></div>'
           + '<div class="dc-player own-'+q.player+'">'+playerName(q.player)+'</div>'
           + '<div class="dc-value">'+val+'</div>'
@@ -1586,7 +1635,7 @@
         var sub = '<span class="own-'+q.player+'">'+playerName(q.player)+'</span>' + (q.deadline ? ' · ⏰ <span class="'+dueTier(q)+'" data-due-for="'+q.id+'">'+dueShort(q)+'</span>' : "") + (q.repeatable ? " · per application" : "");
         return '<div class="rep-row'+(q.kind==="boss"?" boss":"")+'" id="rep-'+q.id+'">'
           + '<div class="rep-mark" aria-hidden="true">✓</div>'
-          + '<div class="rep-main"><div class="rep-title">'+q.title+'</div><div class="rep-sub">'+sub+'</div></div>'
+          + '<div class="rep-main"><div class="rep-title">'+q.title+(isNewQuest(q) ? newFlagHTML() : '')+'</div><div class="rep-sub">'+sub+'</div></div>'
           + '<div class="rep-owner own-'+q.player+'">'+playerName(q.player)+'</div>'
           + '<div class="rep-value">'+val+'</div>'
           + '<div class="rep-due '+(q.deadline ? dueTier(q) : '')+'"'+(q.deadline ? ' data-due-for="'+q.id+'"' : '')+'>'+(q.deadline ? dueShort(q) : "—")+'</div>'
@@ -1967,6 +2016,7 @@
         "qz-activities":"🎒", "qz-schools":"🏫", "qz-scores":"🎯", "qz-admission":"✉️",
         "qz-recommenders":"✉️", "qz-csflavor":"💻", "su-studentaid":"🎓", "su-oneiu":"🔑",
         "su-invested":"🎟️", "ss-essay":"✍️", "ss-individual":"↻",
+        "ss-sallie-mae":"🎲", "ss-bold":"🔥", "ss-unigo":"🎓", "ss-appily":"📱", "ss-ninestar":"⭐",
         "boss-iu":"🏟️", "boss-fafsa":"🏟️", "jeff-fafsa":"✍️",
         "boss-cicf":"🏟️", "boss-iugen":"🏟️", "boss-hsef":"🏟️"
       };
@@ -2032,6 +2082,7 @@
         var isBoss = q.kind==="boss";
         var medal = done ? "✓" : (locked ? "🔒" : (HUD_ICONS[q.id] || "🎯"));
         var tags = '<span class="kickoff">'+hudTag(q)+'</span>';
+        if(isNewQuest(q)) tags += '<span class="kickoff new-kickoff">★ NEW</span>';
         if(q.deadline) tags += '<span class="kickoff">Kickoff · <span class="'+dueTier(q)+'" data-due-for="'+q.id+'">'+dueShort(q)+'</span></span>';
         if(q.earlyBird) tags += '<span class="kickoff">Early bird +$5</span>';
         if(q.facts) tags += '<span class="kickoff">'+q.facts+'</span>';
@@ -2054,7 +2105,7 @@
         }
         return '<article id="mission-'+q.id+'" class="mission'+(shownDone?" done":"")+(isBoss?" boss":"")+(locked?" locked":"")+'">'
           + '<div class="medallion'+(isBoss?" bossMedal":"")+(locked?" lockedMedal":"")+(hudPopId===q.id?" pop":"")+'" aria-hidden="true">'+medal+'</div>'
-          + '<div class="mission-main"><div class="mission-title">'+q.title+'</div>'
+          + '<div class="mission-main"><div class="mission-title">'+q.title+(isNewQuest(q) ? newFlagHTML() : '')+'</div>'
           + '<div class="mission-sub"><span class="rewardBig">'+hudRewardText(q, done)+'</span>'+tags+'</div>'
           + noteFaceHTML(q.id)
           + '<button type="button" class="hud-details-btn" data-hud-details="'+q.id+'" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
@@ -2185,12 +2236,12 @@
         } else {
           btn.style.display = "";
           if(nuBtn) nuBtn.style.display = "";
-          title.textContent = nx.title;
+          if(isNewQuest(nx)){ title.innerHTML = ''; title.textContent = nx.title; var nf = document.createElement("span"); nf.className = "nextup-new"; nf.textContent = "★ NEW"; title.appendChild(nf); } else { title.textContent = nx.title; }
           desc.textContent = nx.desc;
           rew.textContent = nx.player==="jeff" ? "Banks +$5"
             : (nx.kind==="boss" && state.bank>0 ? "$"+nx.value+" + $"+state.bank+" bank = $"+(nx.value+state.bank)
             : (nx.repeatable ? "+$10" : (nx.value>0 ? "+$"+nx.value : "Unlocks the season")));
-          tag.innerHTML = hudTag(nx) + (nx.deadline ? ' · <span class="'+dueTier(nx)+'" data-due-for="'+nx.id+'">'+dueShort(nx)+'</span>' : '');
+          tag.innerHTML = hudTag(nx) + (isNewQuest(nx) ? ' · ★ NEW' : '') + (nx.deadline ? ' · <span class="'+dueTier(nx)+'" data-due-for="'+nx.id+'">'+dueShort(nx)+'</span>' : '');
           if(nuNote) nuNote.innerHTML = noteFaceHTML(nx.id);
           btn.textContent = nx.repeatable ? "Claim +$10" : "Claim";
           if(nuDetails){
