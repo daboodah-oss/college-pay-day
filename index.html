@@ -554,6 +554,47 @@
       .dc-note-glyph{margin-left:6px;font-size:12px}
       .qdetails .note-section{border-top-color:var(--line-soft)}
       .hud-undo-one{width:100%;margin-top:8px;background:transparent;border:1px solid #6e2430;color:#ffb3ba;border-radius:10px;padding:10px;font-weight:900;cursor:pointer;font-size:13.5px}
+      /* ---------- confirmed scholarships (real money, separate from game money) ---------- */
+      .scholarships-hud{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-top:8px;padding:8px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+      .scholarships-hud .sch-k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800}
+      .scholarships-hud .sch-v{font-family:"Oswald",sans-serif;font-style:italic;font-weight:700;font-size:21px;line-height:1;color:var(--green-light);white-space:nowrap}
+      .scholarships-hud .sch-sub{font-size:12.5px;color:var(--muted);font-weight:600}
+      .conf-group{margin-top:14px}
+      .conf-note{margin:0;padding:8px 10px 10px;font-size:12px;color:var(--muted2)}
+      .conf-row{padding:9px 10px;border-bottom:1px solid var(--line-soft)}
+      .conf-row:last-of-type{border-bottom:none}
+      .conf-row:nth-child(even){background:rgba(255,255,255,.018)}
+      .conf-line{font-size:14px;font-weight:600;line-height:1.4;color:var(--ink)}
+      .conf-status-row{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+      .jp-status{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#060d18}
+      .jp-status.is-claimed{color:var(--green-ink);background:var(--green-light);border-color:var(--green-dark)}
+      .jp-status.is-unclaimed{color:#ffd9a8;border-color:#6b5207;background:#241b00}
+      .conf-empty{padding:10px;font-size:13.5px;color:var(--muted)}
+      .conf-mini{margin-top:10px;border-top:1px dashed var(--line-soft);padding-top:9px}
+      .conf-mini-head{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+      .conf-mini-row{font-size:13px;line-height:1.45;color:#cfddf2;margin-top:7px}
+      .conf-mini-row .jp-status{margin-left:7px;vertical-align:middle}
+      /* ---------- jackpot claim modal ---------- */
+      .jackpot-modal .jp-card{text-align:left;max-width:460px}
+      .jackpot-modal .jp-card h2{text-align:left}
+      .jp-form{display:flex;flex-direction:column;gap:11px;margin-top:4px}
+      .jp-field label{display:block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+      .jp-field input,.jp-field select{width:100%;background:#060d18;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:10px 11px;font:inherit;font-size:15px}
+      .jp-field input:focus,.jp-field select:focus{outline:2px solid var(--cyan);outline-offset:1px}
+      .jp-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .jp-hint{font-size:13px;font-weight:700;color:#bdeaff;background:#082238;border:1px solid #2b5a86;border-radius:6px;padding:8px 10px}
+      .jp-hint:empty{display:none}
+      .jp-error{font-size:13.5px;font-weight:700;color:#ffb3ba}
+      .jp-error:empty{display:none}
+      .jp-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:2px}
+      .jp-submit{flex:1 1 auto;background:linear-gradient(180deg,var(--green-light),var(--green));border:1px solid var(--green-dark);color:var(--green-ink);border-radius:8px;padding:12px 14px;font-weight:900;font-size:15px}
+      .jp-cancel{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:12px 14px;font-weight:700;font-size:15px}
+      @media print{
+        .conf-group{background:#fff;border-color:#999}
+        .conf-line{color:#000}
+        .jp-status{color:#333 !important;background:#eee !important;border-color:#999 !important}
+        .scholarships-hud{display:none !important}
+      }
       /* ---------- due-date urgency tiers + owner name colors ----------
          Tier classes are computed at render time from the viewer's local
          today (see dueTier in the script) and refreshed on every update(),
@@ -591,6 +632,11 @@
           </button>
           <div class="earned-hero"><span>Earned</span><b id="earnedTop">$0</b></div>
           <button class="mute-btn hud-sound" id="muteBtn" aria-pressed="false" type="button" aria-label="Sound on">🔊</button>
+        </div>
+        <div class="scholarships-hud" id="scholarshipsHud" aria-label="Confirmed scholarships">
+          <span class="sch-k">Scholarships Confirmed</span>
+          <span class="sch-v" id="schTotalMain">$1,000/yr</span>
+          <span class="sch-sub" id="schTotalSub">up to $4,000 over 4 years</span>
         </div>
         <div class="player-chooser" id="playerChooser" hidden role="dialog" aria-label="Choose player">
           <div class="chooser-title">Who's playing?</div>
@@ -687,6 +733,11 @@
           <div class="rep-stat"><span class="k">Party Bonus Bank</span><span class="v" style="color:var(--cyan)" id="repBank">$0</span></div>
           <div class="rep-stat"><span class="k">Matthew OVR</span><span class="v" style="color:var(--gold)" id="repOvr">72</span></div>
         </div>
+        <div class="rep-group conf-group" id="confirmedSection">
+          <div class="rep-group-head"><span>Confirmed Scholarships</span><span class="rp" id="confTotalsHead"></span></div>
+          <div id="confirmedList"></div>
+          <p class="conf-note">Real scholarship money — kept separate from the game pot, Party Bonus Bank, and quest values above.</p>
+        </div>
         <div id="repList"></div>
         <p class="dc-note">Boss deadlines are game days. The FAFSA is a co-op boss: it only clears once Dad's parent section is signed.</p>
       </section>
@@ -726,6 +777,53 @@
           <button class="pm-btn" type="button" data-pick-player="Matthew"><span class="dot" aria-hidden="true"></span>Matthew</button>
         </div>
         <div class="pm-note">On a shared phone? You can switch anytime by tapping the name at the top of the board.</div>
+      </div>
+    </div>
+    <div class="player-modal jackpot-modal" id="jackpotModal" role="dialog" aria-modal="true" aria-labelledby="jackpotModalTitle">
+      <div class="pm-card jp-card">
+        <div class="k">Jackpot — Scholarship Win</div>
+        <h2 id="jackpotModalTitle">Claim Jackpot +$25</h2>
+        <p>Tell the board what was won — it lands in the Confirmed Scholarships ledger. The +$25 game bonus works exactly as before.</p>
+        <form class="jp-form" id="jackpotForm" novalidate>
+          <div class="jp-field">
+            <label for="jpName">Award name</label>
+            <input type="text" id="jpName" list="jpNameList" autocomplete="off" placeholder="e.g. Crimson Pride Award" />
+            <datalist id="jpNameList"></datalist>
+          </div>
+          <div class="jp-hint" id="jpMatchHint"></div>
+          <div class="jp-field">
+            <label for="jpSource">Source / organization (if known)</label>
+            <input type="text" id="jpSource" autocomplete="off" placeholder="e.g. IU Indianapolis" />
+          </div>
+          <div class="jp-row2">
+            <div class="jp-field">
+              <label for="jpAmount">Amount ($)</label>
+              <input type="number" id="jpAmount" min="1" step="1" inputmode="numeric" placeholder="1000" />
+            </div>
+            <div class="jp-field">
+              <label for="jpPerYear">How often?</label>
+              <select id="jpPerYear">
+                <option value="0">One-time</option>
+                <option value="1">Per year (/yr)</option>
+              </select>
+            </div>
+          </div>
+          <div class="jp-row2">
+            <div class="jp-field">
+              <label for="jpTerms">Terms (brief, optional)</label>
+              <input type="text" id="jpTerms" autocomplete="off" placeholder="e.g. renewable" />
+            </div>
+            <div class="jp-field">
+              <label for="jpDate">Date confirmed</label>
+              <input type="date" id="jpDate" />
+            </div>
+          </div>
+          <div class="jp-error" id="jpError" role="alert"></div>
+          <div class="jp-actions">
+            <button type="submit" class="jp-submit" id="jpSubmit">Claim +$25</button>
+            <button type="button" class="jp-cancel" id="jpCancel">Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
     <div class="boss-banner" id="bossBanner" aria-live="polite">
@@ -989,7 +1087,92 @@
 
       /* ================= STATE (saved on this device / browser) ================= */
       var STORAGE_KEY = "college-pay-day-state-v1";
-      var state = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, notes:{} };
+      /* ---- Confirmed Scholarships ledger (real money, separate from game money) ----
+         Seed is the default list whenever a saved state has no confirmed list yet;
+         from the first save onward the list persists in the synced state like notes. */
+      var SEED_CONFIRMED = [{ id:"seed-crimson-pride", name:"Crimson Pride Award", source:"IU Indianapolis", amount:1000, perYear:true, terms:"renewable", date:"2026-11-13" }];
+      function seedConfirmedList(){
+        return SEED_CONFIRMED.map(function(e){ return { id:e.id, name:e.name, source:e.source, amount:e.amount, perYear:e.perYear, terms:e.terms, date:e.date }; });
+      }
+      function fmtMoney(n){ var v = Number(n); if(!isFinite(v)) v = 0; return "$" + v.toLocaleString("en-US"); }
+      var CONF_WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      var CONF_MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function fmtConfirmedDate(iso){
+        if(!iso || typeof iso !== "string") return "";
+        var m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if(!m) return iso;
+        var y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+        if(!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return iso;
+        var dt = new Date(y, mo - 1, d);
+        return CONF_WD[dt.getDay()] + " · " + CONF_MO[mo - 1] + " " + d + ", " + y;
+      }
+      function todayISO(){
+        var n = new Date();
+        function p(v){ return (v < 10 ? "0" : "") + v; }
+        return n.getFullYear() + "-" + p(n.getMonth() + 1) + "-" + p(n.getDate());
+      }
+      function normalizeAwardName(s){ return String(s == null ? "" : s).trim().toLowerCase().replace(/\s+/g, " "); }
+      function confirmedTotals(){
+        var perYear = 0, oneTime = 0;
+        (state.confirmed || []).forEach(function(e){ if(e.perYear) perYear += Number(e.amount) || 0; else oneTime += Number(e.amount) || 0; });
+        return { perYear:perYear, oneTime:oneTime, fourYear:(perYear * 4) + oneTime };
+      }
+      function confirmedMainText(t){
+        if(t.perYear > 0 && t.oneTime > 0) return fmtMoney(t.perYear) + "/yr + " + fmtMoney(t.oneTime);
+        if(t.perYear > 0) return fmtMoney(t.perYear) + "/yr";
+        if(t.oneTime > 0) return fmtMoney(t.oneTime);
+        return "$0";
+      }
+      function isJackpotClaimedFor(confirmedId){
+        return (state.jackpotHistory || []).some(function(h){ return h && h.confirmedId === confirmedId; });
+      }
+      function jackpotStatusHTML(entry){
+        return isJackpotClaimedFor(entry.id)
+          ? '<span class="jp-status is-claimed">Jackpot claimed ✓</span>'
+          : '<span class="jp-status is-unclaimed">Jackpot not yet claimed</span>';
+      }
+      function confirmedLineText(e){
+        var line = e.name;
+        if(e.source) line += " — " + e.source;
+        line += " — " + fmtMoney(e.amount) + (e.perYear ? "/yr" : "");
+        if(e.terms) line += ", " + e.terms;
+        if(e.date) line += " — Confirmed " + fmtConfirmedDate(e.date);
+        return line;
+      }
+      function findConfirmedByName(name){
+        var want = normalizeAwardName(name);
+        if(!want) return null;
+        var found = null;
+        (state.confirmed || []).forEach(function(e){ if(!found && normalizeAwardName(e.name) === want) found = e; });
+        return found;
+      }
+      function renderConfirmedUI(){
+        var t = confirmedTotals();
+        var mainEl = document.getElementById("schTotalMain");
+        if(mainEl) mainEl.textContent = confirmedMainText(t);
+        var subEl = document.getElementById("schTotalSub");
+        if(subEl) subEl.textContent = (state.confirmed && state.confirmed.length) ? ("up to " + fmtMoney(t.fourYear) + " over 4 years") : "No awards confirmed yet";
+        var headEl = document.getElementById("confTotalsHead");
+        if(headEl) headEl.textContent = (state.confirmed && state.confirmed.length) ? (confirmedMainText(t) + " · up to " + fmtMoney(t.fourYear) + " over 4 years") : "";
+        var listEl = document.getElementById("confirmedList");
+        if(listEl){
+          if(!state.confirmed || !state.confirmed.length){
+            listEl.innerHTML = '<div class="conf-empty">No confirmed scholarships yet.</div>';
+          } else {
+            listEl.innerHTML = state.confirmed.map(function(e){
+              return '<div class="conf-row" data-conf-id="' + escapeHTML(e.id) + '"><div class="conf-line">' + escapeHTML(confirmedLineText(e)) + '</div><div class="conf-status-row">' + jackpotStatusHTML(e) + '</div></div>';
+            }).join("");
+          }
+        }
+      }
+      function confirmedMiniHTML(){
+        if(!state.confirmed || !state.confirmed.length) return "";
+        var rows = state.confirmed.map(function(e){
+          return '<div class="conf-mini-row">' + escapeHTML(confirmedLineText(e)) + jackpotStatusHTML(e) + '</div>';
+        }).join("");
+        return '<div class="conf-mini"><div class="conf-mini-head">Confirmed Scholarships</div>' + rows + '</div>';
+      }
+      var state = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, notes:{}, confirmed:seedConfirmedList(), jackpotHistory:[] };
       var byId = {};
       QUESTS.forEach(function(q){ byId[q.id]=q; });
       function cleanCount(v){ var n = Number(v); return (isFinite(n) && n > 0) ? Math.floor(n) : 0; }
@@ -1000,8 +1183,15 @@
         if(state.notes && typeof state.notes === "object"){
           Object.keys(state.notes).forEach(function(id){ if(typeof state.notes[id] === "string" && state.notes[id]) notes[id] = state.notes[id]; });
         }
+        var confirmed = (state.confirmed || []).map(function(e){
+          return { id:e.id, name:e.name, source:e.source || "", amount:Number(e.amount) || 0, perYear:e.perYear === true, terms:e.terms || "", date:e.date || "" };
+        });
+        var jackpotHistory = (state.jackpotHistory || []).map(function(h){
+          return { confirmedId:h.confirmedId, created:h.created === true };
+        });
         return { done:state.done, extraApps:state.extraApps, jackpot:state.jackpot,
-          bank:state.bank, bankSpentTotal:state.bankSpentTotal, muted:state.muted, bankPaid:bankPaid, notes:notes };
+          bank:state.bank, bankSpentTotal:state.bankSpentTotal, muted:state.muted, bankPaid:bankPaid, notes:notes,
+          confirmed:confirmed, jackpotHistory:jackpotHistory };
       }
       function saveState(){
         try{
@@ -1011,7 +1201,7 @@
       }
       function cleanStateData(data){
         /* Validate an incoming state object (local cache or server) into a clean one — corrupted fields fall back to $0 defaults. */
-        var next = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, bankPaid:{}, notes:{} };
+        var next = { done:{}, extraApps:0, jackpot:0, bank:0, bankSpentTotal:0, muted:false, bankPaid:{}, notes:{}, confirmed:seedConfirmedList(), jackpotHistory:[] };
         if(!data || typeof data !== "object") return next;
         if(data.done && typeof data.done === "object"){
           Object.keys(data.done).forEach(function(id){ if(byId[id] && data.done[id]) next.done[id] = true; });
@@ -1030,12 +1220,42 @@
             if((byId[id] || id === "jackpot") && typeof v === "string" && v) next.notes[id] = v;
           });
         }
+        /* Confirmed ledger: an array in the saved state is authoritative (even
+           empty — e.g. after undoing a created entry); only a state with NO
+           confirmed list yet keeps the seed default set above. */
+        if(Array.isArray(data.confirmed)){
+          next.confirmed = [];
+          data.confirmed.forEach(function(e, idx){
+            if(!e || typeof e !== "object") return;
+            var nm = typeof e.name === "string" ? e.name.trim() : "";
+            var amt = Number(e.amount);
+            if(!nm || !isFinite(amt) || amt <= 0) return;
+            var dval = typeof e.date === "string" ? e.date : (typeof e.dateConfirmed === "string" ? e.dateConfirmed : "");
+            next.confirmed.push({
+              id:(typeof e.id === "string" && e.id) ? e.id : ("conf-" + idx),
+              name:nm,
+              source:typeof e.source === "string" ? e.source.trim() : "",
+              amount:amt,
+              perYear:e.perYear === true,
+              terms:typeof e.terms === "string" ? e.terms.trim() : "",
+              date:/^\d{4}-\d{2}-\d{2}/.test(dval) ? dval.slice(0, 10) : ""
+            });
+          });
+        }
+        if(Array.isArray(data.jackpotHistory)){
+          next.jackpotHistory = [];
+          data.jackpotHistory.forEach(function(h){
+            if(h && typeof h.confirmedId === "string" && h.confirmedId) next.jackpotHistory.push({ confirmedId:h.confirmedId, created:h.created === true });
+          });
+        }
         return next;
       }
       function applyStateData(next){
         state.done = next.done; state.extraApps = next.extraApps; state.jackpot = next.jackpot;
         state.bank = next.bank; state.bankSpentTotal = next.bankSpentTotal; state.muted = next.muted;
         state.notes = next.notes || {};
+        state.confirmed = Array.isArray(next.confirmed) ? next.confirmed : seedConfirmedList();
+        state.jackpotHistory = Array.isArray(next.jackpotHistory) ? next.jackpotHistory : [];
         QUESTS.forEach(function(q){ q._bankPaid = next.bankPaid[q.id] || 0; });
       }
       function loadState(){
@@ -1614,7 +1834,8 @@
           + '<div class="dc-player own-matthew">Matthew</div>'
           + '<div class="dc-value">$25</div>'
           + '<div class="dc-due">—</div>'
-          + '<button class="claim-btn small" type="button" data-jackpot="1"><span>Claim +$25</span></button>'
+          + '<div class="dc-actions"><button class="claim-btn small" type="button" data-jackpot="1"><span>Claim +$25</span></button>'
+          + '<button class="undo-one-btn small" type="button" data-jackpot-undo="1" hidden disabled><span>Undo one −$25</span></button></div>'
           + '</div>';
       }
       function renderDepth(){
@@ -1703,6 +1924,7 @@
       function update(){
         var earned = calcEarned();
         document.getElementById("earnedTop").textContent = "$"+earned;
+        renderConfirmedUI();
         document.getElementById("bankTop").textContent = "$"+state.bank;
         var bankCardEl = document.getElementById("bankCard"); if(bankCardEl) bankCardEl.textContent = "$"+state.bank;
         document.getElementById("potText").textContent = "$"+earned+" of $"+POT;
@@ -1747,6 +1969,8 @@
           if(jMeta) jMeta.textContent = state.jackpot>0 ? "Claimed ×"+state.jackpot+" · $"+(state.jackpot*25)+" dropped" : "Any scholarship win";
           var jBtnSpan = jRowD.querySelector("button[data-jackpot] span");
           if(jBtnSpan) jBtnSpan.textContent = state.jackpot>0 ? "Claim +$25 (×"+state.jackpot+" claimed)" : "Claim +$25";
+          var jUndoD = jRowD.querySelector("[data-jackpot-undo]");
+          if(jUndoD){ var hasJ = state.jackpot>0; jUndoD.hidden = !hasJ; jUndoD.disabled = !hasJ; }
         }
         var jRowR = document.getElementById("rep-jackpot");
         if(jRowR) jRowR.classList.toggle("done", state.jackpot>0);
@@ -1906,18 +2130,116 @@
         toast("One application claim removed — <span class='amt'>−$10</span>");
         update(); pushState("undo-one", qid);
       }
+      /* ---- Jackpot claim flow: in-page form (no browser dialogs) collects the award
+         details for the Confirmed Scholarships ledger, then pays the same
+         +$25 game bonus as before. A name that matches a ledger entry links
+         to that entry instead of adding a duplicate. ---- */
+      function openJackpotModal(){
+        var modal = document.getElementById("jackpotModal");
+        if(!modal) return;
+        var dl = document.getElementById("jpNameList");
+        if(dl) dl.innerHTML = (state.confirmed || []).map(function(e){ return '<option value="' + escapeHTML(e.name) + '"></option>'; }).join("");
+        ["jpName","jpSource","jpAmount","jpTerms"].forEach(function(id){ var f = document.getElementById(id); if(f) f.value = ""; });
+        var perEl0 = document.getElementById("jpPerYear"); if(perEl0) perEl0.value = "0";
+        var dateEl = document.getElementById("jpDate");
+        if(dateEl) dateEl.value = todayISO();
+        var err = document.getElementById("jpError"); if(err) err.textContent = "";
+        var hint = document.getElementById("jpMatchHint"); if(hint) hint.textContent = "";
+        modal.classList.add("show");
+        var nameEl = document.getElementById("jpName");
+        if(nameEl) nameEl.focus();
+      }
+      function closeJackpotModal(){
+        var modal = document.getElementById("jackpotModal");
+        if(modal) modal.classList.remove("show");
+      }
+      function refreshJackpotMatchHint(){
+        var nameEl = document.getElementById("jpName");
+        var hint = document.getElementById("jpMatchHint");
+        if(!nameEl || !hint) return;
+        var match = findConfirmedByName(nameEl.value);
+        hint.textContent = match ? "Already in the ledger — this claim links to that entry, so it won't be counted twice. Its status flips to “Jackpot claimed ✓”." : "";
+        if(match){
+          var src = document.getElementById("jpSource"); if(src && !src.value && match.source) src.value = match.source;
+          var amt = document.getElementById("jpAmount"); if(amt && !amt.value) amt.value = match.amount;
+          var per = document.getElementById("jpPerYear"); if(per) per.value = match.perYear ? "1" : "0";
+          var trm = document.getElementById("jpTerms"); if(trm && !trm.value && match.terms) trm.value = match.terms;
+          var dt = document.getElementById("jpDate"); if(dt && match.date) dt.value = match.date;
+        }
+      }
+      function submitJackpotClaim(){
+        var nameEl = document.getElementById("jpName");
+        var srcEl = document.getElementById("jpSource");
+        var amtEl = document.getElementById("jpAmount");
+        var perEl = document.getElementById("jpPerYear");
+        var trmEl = document.getElementById("jpTerms");
+        var dateEl = document.getElementById("jpDate");
+        var err = document.getElementById("jpError");
+        var name = nameEl ? nameEl.value.trim() : "";
+        var amount = amtEl ? Number(amtEl.value) : 0;
+        if(!name){ if(err) err.textContent = "Add the award name — that's what goes in the ledger."; if(nameEl) nameEl.focus(); return; }
+        if(!isFinite(amount) || amount <= 0){ if(err) err.textContent = "Add the award amount in dollars."; if(amtEl) amtEl.focus(); return; }
+        var perYear = perEl ? perEl.value === "1" : false;
+        var source = srcEl ? srcEl.value.trim() : "";
+        var terms = trmEl ? trmEl.value.trim() : "";
+        var dateVal = dateEl && dateEl.value ? dateEl.value : todayISO();
+        ac();
+        state.jackpot += 1;
+        if(!state.confirmed) state.confirmed = [];
+        if(!state.jackpotHistory) state.jackpotHistory = [];
+        var match = findConfirmedByName(name);
+        var linked = false;
+        if(match){
+          /* Link to the existing entry — refresh its details from the form
+             only where the form actually carries the seeded facts, and
+             never add a second entry for the same award. */
+          linked = true;
+          state.jackpotHistory.push({ confirmedId:match.id, created:false });
+        } else {
+          var newId = "conf-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 100000).toString(36);
+          state.confirmed.push({ id:newId, name:name, source:source, amount:amount, perYear:perYear, terms:terms, date:dateVal });
+          state.jackpotHistory.push({ confirmedId:newId, created:true });
+        }
+        closeJackpotModal();
+        play("champ");
+        confetti();
+        toast(linked
+          ? "🏆 Scholarship win — <span class='amt'>+$25</span> jackpot drop · linked to the ledger entry already on file"
+          : "🏆 Scholarship win — <span class='amt'>+$25</span> jackpot drop to Matthew · cash or Xbox");
+        update(); pushState("jackpot", "");
+      }
+      function undoJackpot(){
+        if(!player){ openPlayerModal(); return; }
+        if(state.jackpot <= 0) return;
+        state.jackpot = Math.max(0, state.jackpot - 1);
+        var last = (state.jackpotHistory && state.jackpotHistory.length) ? state.jackpotHistory.pop() : null;
+        if(last && last.created){
+          state.confirmed = (state.confirmed || []).filter(function(e){ return e.id !== last.confirmedId; });
+        }
+        toast("Jackpot claim undone — <span class='amt'>−$25</span>");
+        update(); pushState("jackpot-undo", "");
+      }
+      (function wireJackpotModal(){
+        var form = document.getElementById("jackpotForm");
+        if(form) form.addEventListener("submit", function(e){ e.preventDefault(); submitJackpotClaim(); });
+        var cancel = document.getElementById("jpCancel");
+        if(cancel) cancel.addEventListener("click", closeJackpotModal);
+        var modal = document.getElementById("jackpotModal");
+        if(modal) modal.addEventListener("click", function(e){ if(e.target === modal) closeJackpotModal(); });
+        var nameEl = document.getElementById("jpName");
+        if(nameEl) nameEl.addEventListener("input", refreshJackpotMatchHint);
+        if(nameEl) nameEl.addEventListener("change", refreshJackpotMatchHint);
+      })();
       document.addEventListener("click", function(e){
         var u = e.target.closest ? e.target.closest("[data-undo-one]") : null;
         if(u){ undoOne(u.getAttribute("data-undo-one")); return; }        var c = e.target.closest ? e.target.closest("[data-claim]") : null;
         if(c){ claim(c.getAttribute("data-claim")); return; }
+        var ju = e.target.closest ? e.target.closest("[data-jackpot-undo]") : null;
+        if(ju){ undoJackpot(); return; }
         var j = e.target.closest ? e.target.closest("[data-jackpot]") : null;
         if(j){
           if(!player){ openPlayerModal(); return; }
-          state.jackpot += 1;
-          play("champ");
-          confetti();
-          toast("🏆 Scholarship win — <span class='amt'>+$25</span> jackpot drop to Matthew · cash or Xbox");
-          update(); pushState("jackpot", ""); return;
+          openJackpotModal(); return;
         }
       });
       /* ---- notes: add / edit / save / cancel (shared via the same sync write path as claims) ---- */
@@ -1995,6 +2317,7 @@
           try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
           state.done = {}; state.extraApps = 0; state.jackpot = 0;
           state.bank = 0; state.bankSpentTotal = 0; state.notes = {};
+          state.confirmed = seedConfirmedList(); state.jackpotHistory = [];
           QUESTS.forEach(function(q){ q._bankPaid = 0; });
           confirmBox.hidden = true;
           resetBtn.hidden = false;
@@ -2123,12 +2446,14 @@
           + '</div>'
           + noteFaceHTML("jackpot")
           + '<button type="button" class="hud-claim-btn gold" data-jackpot="1">Claim +$25</button>'
+          + (state.jackpot>0 ? '<button type="button" class="hud-undo-one" data-jackpot-undo="1">Undo one −$25</button>' : '')
           + '<button type="button" class="hud-details-btn" data-hud-details="jackpot" aria-expanded="'+(open?"true":"false")+'">Details '+(open?"▴":"▾")+'</button>'
           + '<div class="hud-details'+(open?" open":"")+'">'
           + '<div class="hud-done-when"><span class="hud-done-when-label">✓ Done When:</span> a scholarship award letter or email stating the amount has actually been received. An application submission, or an admission letter with no award, does not count.</div>'
           + '<p>Any scholarship Matthew actually <strong>wins</strong> pays a <strong>+$25 bonus drop</strong> — on top of the scholarship itself. When an aid offer arrives, INvestEd\'s free Award Advisor standardizes it so offers can be compared side by side.</p>'
           + '<div class="detail-links"><a class="detail-link" href="https://investedindiana.org/AwardAdvisor" target="_blank" rel="noopener noreferrer">INvestEdIndiana.org/AwardAdvisor ↗</a></div>'
           + '<p style="margin-top:8px">Free INvestEd help line: <a href="tel:+13177159007">317-715-9007</a> · <a href="mailto:Outreach@INvestEdIndiana.org">Outreach@INvestEdIndiana.org</a></p>'
+          + confirmedMiniHTML()
           + noteSectionHTML("jackpot")
           + '</div></div></article>';
       }
